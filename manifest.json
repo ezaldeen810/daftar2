@@ -1,6 +1,6 @@
 {
-  "name": "دفتر الاشتراكات",
-  "short_name": "الدفتر",
+  "name": "دفتر الاشتراكات 2 (سحابي)",
+  "short_name": "الدفتر 2",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -9,6 +9,11 @@
   "dir": "rtl",
   "lang": "ar",
   "icons": [
-    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }

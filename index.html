@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="الدفتر">
+<meta name="apple-mobile-web-app-title" content="الدفتر 2">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="icon.png">
-<title>الدفتر</title>
+<title>الدفتر 2</title>
 <style>
 :root{
   --bg:#f4f5f7;--card:#ffffff;--text:#14181f;--muted:#6b7280;--line:#e4e6ea;
@@ -41,9 +41,10 @@ header.top h1{font-size:22px;margin:0;flex:1;font-weight:700;white-space:nowrap;
 .icon-btn{border:0;background:var(--card);box-shadow:var(--shadow);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;flex:none}
 .icon-btn svg{width:22px;height:22px}
 main{padding:0 16px calc(96px + env(safe-area-inset-bottom))}
-nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:6;background:var(--card);border-top:1px solid var(--line);
+nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:6;transform:translateZ(0);background:var(--card);border-top:1px solid var(--line);
   display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom)}
-nav.tabs button{border:0;background:none;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted)}
+nav.tabs button{border:0;background:none;height:56px;padding:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;line-height:1.1;color:var(--muted)}
+nav.tabs button span{display:block;height:13px}
 nav.tabs button svg{width:24px;height:24px}
 nav.tabs button.on{color:var(--accent);font-weight:700}
 
@@ -393,14 +394,32 @@ function waNumber(p){
   else if(d.length === 10 && d.startsWith('7')) d = '964' + d;
   return d;
 }
-function balLine(b){ return b > 0 ? `المبلغ المطلوب الكلي: ${fn(b)} ألف دينار.` : b < 0 ? `عندك رصيد مقدّم ${fn(-b)} ألف دينار.` : 'حسابك مسدّد بالكامل، شكراً.'; }
+/* نصوص الرسائل — الكلمات بين {} تنبدل وحدها */
+const MSG = {
+  act: 'مرحباً {الاسم}،\nتم تفعيل اشتراكك بتاريخ {تاريخ التفعيل} وينتهي بتاريخ {تاريخ الانتهاء}.\n{سطر المبلغ}',
+  pay: 'مرحباً {الاسم}،\nتم تسديد {مبلغ التسديد} بتاريخ {التاريخ}، شكراً.\n{سطر المبلغ}',
+  soon: 'مرحباً {الاسم}،\nاشتراكك ينتهي بتاريخ {تاريخ الانتهاء}.\n{سطر المبلغ}',
+  expired: 'مرحباً {الاسم}،\nاشتراكك انتهى بتاريخ {تاريخ الانتهاء}.\n{سطر المبلغ}',
+  general: 'مرحباً {الاسم}،\nكشف حسابك لغاية {تاريخ اليوم}:\n{سطر المبلغ}',
+  balDue: 'المبلغ المطلوب الكلي: {المبلغ}. الرجاء التسديد بأقرب وقت.',
+  balCredit: 'عندك رصيد مقدّم {المبلغ}.',
+  balZero: 'حسابك مسدّد بالكامل، شكراً.',
+  sign: ''
+};
+// المبالغ بالتطبيق بالألف، وبالرسائل تنكتب كاملة: 35 ← 35,000 دينار
+function money(n){ return Math.round(n * 1000).toLocaleString('en-US') + ' دينار'; }
+function fill(t, v){ return t.replace(/\{([^}]+)\}/g, (m, k) => (k in v ? v[k] : m)); }
+function balLine(b){ return b > 0 ? fill(MSG.balDue, {'المبلغ': money(b)}) : b < 0 ? fill(MSG.balCredit, {'المبلغ': money(-b)}) : MSG.balZero; }
 function msgFor(type, c, s, extra){
-  const n = c.name;
-  if(type === 'act') return `مرحباً ${n}،\nتم تفعيل اشتراكك بتاريخ ${fd(extra.date)} وينتهي بتاريخ ${fd(addDays(extra.date, SUB_DAYS))}.\n${balLine(s.bal)}`;
-  if(type === 'expiry' && s.end) return s.left < 0
-    ? `مرحباً ${n}،\nاشتراكك انتهى بتاريخ ${fd(s.end)}.\n${balLine(s.bal)}`
-    : `مرحباً ${n}،\nاشتراكك ينتهي بتاريخ ${fd(s.end)}.\n${balLine(s.bal)}`;
-  return `مرحباً ${n}،\nكشف حسابك لغاية ${fd(today())}:\n${balLine(s.bal)}`;
+  extra = extra || {};
+  const v = {'الاسم': c.name, 'سطر المبلغ': balLine(s.bal), 'تاريخ اليوم': fd(today()), 'تاريخ الانتهاء': s.end ? fd(s.end) : ''};
+  let t;
+  if(type === 'act'){ v['تاريخ التفعيل'] = fd(extra.date); v['تاريخ الانتهاء'] = fd(addDays(extra.date, SUB_DAYS)); t = MSG.act; }
+  else if(type === 'pay'){ v['مبلغ التسديد'] = money(extra.amount); v['التاريخ'] = fd(extra.date); t = MSG.pay; }
+  else if(type === 'expiry' && s.end) t = s.left < 0 ? MSG.expired : MSG.soon;
+  else t = MSG.general;
+  const out = fill(t, v);
+  return MSG.sign ? out + '\n' + MSG.sign : out;
 }
 function openWhatsApp(c, text){
   const n = waNumber(c.phone);
@@ -455,12 +474,12 @@ function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navig
 
 function showSetup(){
   $('#tabs').innerHTML = ''; $('#top').innerHTML = '';
-  $('#main').innerHTML = `<div class="login card"><img src="icon.png" alt=""><h2 class="center">الدفتر</h2>
+  $('#main').innerHTML = `<div class="login card"><img src="icon.png" alt=""><h2 class="center">الدفتر 2</h2>
     <div class="label center">التطبيق مو مربوط بقاعدة البيانات بعد: ملف <b>config.js</b> ناقص أو ما بيه إعدادات Firebase.</div></div>`;
 }
 function showLogin(msg){
   $('#tabs').innerHTML = ''; $('#top').innerHTML = '';
-  $('#main').innerHTML = `<div class="login card"><img src="icon.png" alt=""><h2 class="center">الدفتر</h2>
+  $('#main').innerHTML = `<div class="login card"><img src="icon.png" alt=""><h2 class="center">الدفتر 2</h2>
     <div class="label center" style="margin-bottom:16px">سجّل دخول بحسابك</div>
     <div class="err" id="ferr">${esc(msg || '')}</div>
     <div class="field"><label>الإيميل</label><input id="l_email" type="email" inputmode="email" autocomplete="username" dir="ltr"></div>
@@ -658,6 +677,7 @@ function txForm(kind, cid, t){
       commit({k:'tx', v:nt}, {type:KIND[kind], cid, text:`${c.name}: ${desc(nt)}`});
       const ns = stats().get(cid);
       if(kind === 'act') waPrompt(c, msgFor('act', c, ns, {date}), 'انحفظ التفعيل ✓');
+      else if(kind === 'pay'){ waPrompt(c, msgFor('pay', c, ns, {date, amount:amt}), 'انحفظ التسديد ✓'); toast(`${balText(ns.bal).s}: ${fn(Math.abs(ns.bal))}`); }
       else toast(`انحفظ ✓ — ${balText(ns.bal).s}: ${fn(Math.abs(ns.bal))}`);
     } else {
       const nt = {...t, date, amount:amt, note, updatedAt:nowISO()};
@@ -871,7 +891,7 @@ document.addEventListener('click', async ev => {
       case 'logout': {
         if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية'; return; }
         await signOut(auth); break; }
-      case 'tab': UI.tab = el.dataset.k; UI.view = null; closeModal(); render(); scrollTo(0,0); break;
+      case 'tab': if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); UI.tab = el.dataset.k; UI.view = null; closeModal(); render(); scrollTo(0,0); break;
       case 'filter': UI.filter = el.dataset.k; render(); break;
       case 'openCustomer': UI.view = {name:'customer', id}; history.pushState({v:1}, ''); render(); scrollTo(0,0); break;
       case 'back': if(history.state && history.state.v){ history.back(); } else { UI.view = null; render(); } break;
@@ -942,6 +962,8 @@ document.addEventListener('input', ev => {
   else if(t.id === 'f_date' && $('#f_endhint')) $('#f_endhint').textContent = t.value ? 'ينتهي الاشتراك بتاريخ ' + fd(addDays(t.value, SUB_DAYS)) : '';
 });
 document.addEventListener('keydown', ev => { if(ev.key === 'Enter' && (ev.target.id === 'l_pass' || ev.target.id === 'l_email')){ const b = $('[data-act=login]'); if(b) b.click(); } });
+/* iOS: بعد ما يتسد الكيبورد، نرجّع الصفحة لمكانها حتى ما يبقى الشريط السفلي مرتفع */
+document.addEventListener('focusout', ev => { if(/^(INPUT|TEXTAREA|SELECT)$/.test(ev.target.tagName)) setTimeout(() => { const a = document.activeElement; if(!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) window.scrollTo(window.scrollX, window.scrollY); }, 120); });
 document.addEventListener('change', ev => { if(ev.target.id === 'restoreFile' && ev.target.files[0]) restoreFrom(ev.target.files[0]); });
 window.addEventListener('popstate', () => { if($('#layer').innerHTML){ closeModal(); return; } if(UI.view){ UI.view = null; render(); } });
 
