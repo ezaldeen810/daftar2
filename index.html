@@ -14,15 +14,15 @@
 <title>الدفتر</title>
 <style>
 :root{
-  --bg:#f4f5f7;--card:#ffffff;--text:#14181f;--muted:#6b7280;--line:#e4e6ea;
-  --accent:#0f766e;--accent-soft:#e3f3f1;--on-accent:#ffffff;
-  --debt:#c0262d;--debt-soft:#fdecec;--pay:#15803d;--pay-soft:#e8f6ec;
-  --warn:#b45309;--warn-soft:#fdf3e1;--radius:14px;
-  --shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04);
+  --bg:#f3f4f6;--card:#ffffff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--line2:#f1f2f4;
+  --accent:#0f766e;--accent-soft:#e2f2f0;--on-accent:#ffffff;
+  --debt:#c0262d;--debt-soft:#fdecec;--pay:#15803d;--pay-soft:#e7f6ec;
+  --warn:#b45309;--warn-soft:#fdf2e0;--radius:16px;
+  --shadow:0 1px 2px rgba(17,24,39,.05),0 4px 14px rgba(17,24,39,.05);
 }
 @media (prefers-color-scheme:dark){
-  :root{--bg:#0e1013;--card:#181b20;--text:#e9ebee;--muted:#9aa1ab;--line:#2a2f37;
-  --accent:#2bb3a5;--accent-soft:#163331;--on-accent:#06201d;
+  :root{--bg:#0d0f12;--card:#171a1f;--text:#eceef1;--muted:#9aa1ab;--line:#2a2f37;--line2:#20242a;
+  --accent:#2bb3a5;--accent-soft:#143230;--on-accent:#04201c;
   --debt:#f2777b;--debt-soft:#3a1d1f;--pay:#5ccf85;--pay-soft:#16301f;
   --warn:#f0b452;--warn-soft:#3a2c14;--shadow:none;}
 }
@@ -32,68 +32,80 @@ body{font-family:-apple-system,"SF Arabic","Segoe UI",Tahoma,"Noto Sans Arabic",
   -webkit-text-size-adjust:100%;overscroll-behavior-y:none}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
+button:active{opacity:.75}
 .num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
 
 /* layout */
-header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 16px 8px;
-  display:flex;align-items:center;gap:10px;min-height:52px}
-header.top h1{font-size:22px;margin:0;flex:1;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.icon-btn{border:0;background:var(--card);box-shadow:var(--shadow);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;flex:none}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  display:flex;align-items:center;gap:10px;min-height:56px}
+header.top h1{font-size:23px;margin:0;flex:1;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{border:0;background:var(--card);box-shadow:var(--shadow);border-radius:12px;width:42px;height:42px;display:grid;place-items:center;flex:none}
 .icon-btn svg{width:22px;height:22px}
-main{padding:0 16px calc(96px + env(safe-area-inset-bottom))}
+main{padding:0 16px calc(104px + env(safe-area-inset-bottom))}
 nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:6;transform:translateZ(0);background:var(--card);border-top:1px solid var(--line);
-  display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom)}
-nav.tabs button{border:0;background:none;height:56px;padding:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;line-height:1.1;color:var(--muted)}
+  display:grid;grid-template-columns:repeat(5,1fr);padding:4px 4px env(safe-area-inset-bottom)}
+nav.tabs button{border:0;background:none;height:58px;padding:0 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;line-height:1.1;color:var(--muted)}
+nav.tabs button i{display:grid;place-items:center;width:52px;height:30px;border-radius:999px}
 nav.tabs button span{display:block;height:13px}
-nav.tabs button svg{width:24px;height:24px}
-nav.tabs button.on{color:var(--accent);font-weight:700}
+nav.tabs button svg{width:23px;height:23px}
+nav.tabs button.on{color:var(--accent);font-weight:800}
+nav.tabs button.on i{background:var(--accent-soft)}
 
 /* cards & lists */
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
 .stack>*+*{margin-top:12px}
-.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.summary .card{padding:12px 14px}
 .label{font-size:13px;color:var(--muted)}
 .big{font-size:26px;font-weight:800}
-.debt{color:var(--debt)}.pay{color:var(--pay)}.warn{color:var(--warn)}.muted{color:var(--muted)}
-.banner{border-radius:12px;padding:11px 13px;font-size:14px;display:flex;align-items:center;gap:10px}
+.debt{color:var(--debt)}.pay{color:var(--pay)}.warn{color:var(--warn)}.muted{color:var(--muted)}.accent{color:var(--accent)}
+.stats3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:0;padding:0}
+.stats3>button,.stats3>div{border:0;background:none;padding:12px 12px;text-align:right;border-left:1px solid var(--line2)}
+.stats3>:last-child{border-left:0}
+.stats3 .v{font-size:24px;font-weight:800;line-height:1.2}
+.stats3 .u{font-size:11.5px;color:var(--muted)}
+.banner{border-radius:14px;padding:11px 13px;font-size:14px;display:flex;align-items:center;gap:10px}
 .banner.warn{background:var(--warn-soft);color:var(--warn)}
 .banner.info{background:var(--accent-soft);color:var(--accent)}
+.banner.bad{background:var(--debt-soft);color:var(--debt)}
 .banner .grow{flex:1}
-.banner button{border:0;border-radius:10px;padding:7px 11px;background:currentColor;font-weight:700;font-size:13px}
+.banner button{border:0;border-radius:10px;padding:7px 12px;background:currentColor;font-weight:800;font-size:13px;flex:none}
 .banner button span{color:var(--card)}
-.search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:11px 14px;font-size:17px;outline:none}
+.search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;font-size:17px;outline:none}
 .search:focus{border-color:var(--accent)}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none;margin:0 -16px;padding-inline:16px}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 13px;font-size:14px}
-.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:14px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:800}
 .list{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:right}
+.row{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line2);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:right;min-height:60px}
 .row:last-child{border-bottom:0}
 .row .main{flex:1;min-width:0}
-.row .title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .sub{font-size:13px;color:var(--muted);margin-top:1px}
-.row .amt{font-weight:800;font-size:17px;text-align:left;flex:none}
+.row .title{font-weight:700;font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{font-size:13px;color:var(--muted);margin-top:3px}
+.row .amt{font-weight:800;font-size:18px;text-align:left;flex:none}
 .row .amt small{display:block;font-weight:500;font-size:11.5px;color:var(--muted);text-align:left}
-.tag{display:inline-block;font-size:11.5px;border-radius:6px;padding:1px 6px;font-weight:700;vertical-align:1px}
+.pill{display:inline-block;font-size:12px;border-radius:999px;padding:2px 9px;font-weight:700;line-height:1.5}
+.pill.debt{background:var(--debt-soft)}.pill.pay{background:var(--pay-soft)}.pill.warn{background:var(--warn-soft)}
+.pill.muted{background:var(--line2)}.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.tag{display:inline-block;font-size:12px;border-radius:7px;padding:1px 7px;font-weight:800;vertical-align:1px}
 .tag.debt{background:var(--debt-soft)}.tag.pay{background:var(--pay-soft)}.tag.warn{background:var(--warn-soft)}
 .tag.acc{background:var(--accent-soft);color:var(--accent)}
-.wa-mini{flex:none;border:0;background:var(--pay-soft);color:var(--pay);border-radius:10px;width:38px;height:38px;display:grid;place-items:center}
+.wa-mini{flex:none;border:0;background:var(--pay-soft);color:var(--pay);border-radius:12px;width:40px;height:40px;display:grid;place-items:center}
 .wa-mini svg{width:20px;height:20px}
 .empty{padding:28px 16px;text-align:center;color:var(--muted)}
-.fab{position:fixed;left:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:7;border:0;border-radius:16px;
-  background:var(--accent);color:var(--on-accent);font-weight:800;padding:14px 18px;box-shadow:0 6px 18px rgba(15,118,110,.35);display:flex;gap:6px;align-items:center}
+.fab{position:fixed;left:16px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:7;border:0;border-radius:18px;
+  background:var(--accent);color:var(--on-accent);font-weight:800;padding:15px 20px;box-shadow:0 8px 22px rgba(15,118,110,.35);display:flex;gap:6px;align-items:center;font-size:16px}
 .fab svg{width:20px;height:20px}
-h2.sec{font-size:15px;color:var(--muted);margin:18px 2px 8px;font-weight:700}
+h2.sec{font-size:15px;color:var(--muted);margin:20px 4px 8px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+h2.sec button{border:0;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:5px 12px;font-weight:800;font-size:13px}
+.month-h{background:var(--line2);color:var(--muted);font-size:12.5px;font-weight:800;padding:6px 14px}
 
 /* customer page */
-.balance{text-align:center;padding:18px 14px}
-.balance .big{font-size:38px}
-.balance .state{margin-top:6px;font-size:14px}
+.balance{text-align:center;padding:20px 14px 16px}
+.balance .big{font-size:42px;line-height:1.15}
+.balance .state{margin-top:8px}
 .actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.act{border:0;border-radius:14px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;font-size:13.5px}
-.act svg{width:24px;height:24px}
+.act{border:0;border-radius:16px;padding:13px 4px 11px;display:flex;flex-direction:column;align-items:center;gap:5px;font-weight:800;font-size:13.5px}
+.act svg{width:25px;height:25px}
 .act.charge{background:var(--debt-soft);color:var(--debt)}
 .act.payb{background:var(--pay-soft);color:var(--pay)}
 .act.other{background:var(--warn-soft);color:var(--warn)}
@@ -102,43 +114,71 @@ h2.sec{font-size:15px;color:var(--muted);margin:18px 2px 8px;font-weight:700}
 .tx .note{font-size:13px;margin-top:2px}
 .opening-row{background:var(--accent-soft)}
 
+/* wallet / report */
+.wallet{text-align:center;padding:18px 14px}
+.wallet .big{font-size:38px}
+.wallet .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.monthbar{display:flex;align-items:center;gap:8px}
+.monthbar .m{flex:1;text-align:center;font-weight:800;font-size:18px}
+.rep .line{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.rep .line:last-child{border-bottom:0}
+.rep .line .k{font-size:15px}
+.rep .line .k small{display:block;font-size:12px;color:var(--muted)}
+.rep .line .v{font-weight:800;font-size:17px}
+.rep .total{border-top:2px solid var(--line);margin-top:4px;padding-top:12px}
+.rep .total .k{font-weight:800}
+.rep .total .v{font-size:22px}
+
 /* modal page */
 .modal{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;animation:up .18s ease-out}
 @keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
 .modal header{padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);background:var(--card)}
 .modal header h3{flex:1;margin:0;font-size:18px;text-align:center}
 .modal .body{flex:1;overflow:auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
-.btn{border:0;border-radius:12px;padding:13px 16px;font-weight:800;font-size:16px;background:var(--accent);color:var(--on-accent);width:100%}
+.btn{border:0;border-radius:14px;padding:14px 16px;font-weight:800;font-size:17px;background:var(--accent);color:var(--on-accent);width:100%}
 .btn.sm{width:auto;padding:8px 14px;font-size:15px}
 .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line)}
 .btn.danger{background:var(--debt-soft);color:var(--debt)}
+.btn.red{background:var(--debt);color:#fff}
 .btn.green{background:var(--pay);color:#fff}
 .btn:disabled{opacity:.45}
+.btn + .btn{margin-top:10px}
 .field{margin-bottom:14px}
-.field label{display:block;font-size:14px;color:var(--muted);margin-bottom:5px;font-weight:600}
-.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 13px;font-size:17px;outline:none}
+.field label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 13px;font-size:17px;outline:none}
 .field input:focus,.field textarea:focus{border-color:var(--accent)}
-.field textarea{min-height:120px;resize:vertical;line-height:1.6}
-.field .hint{font-size:13px;color:var(--muted);margin-top:5px}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
-.seg button{border:0;background:none;border-radius:9px;padding:9px 6px;font-weight:700;font-size:15px;color:var(--muted)}
+.field textarea{min-height:130px;resize:vertical;line-height:1.6}
+.field .hint{font-size:13px;color:var(--muted);margin-top:6px}
+.amount-box{position:relative}
+.amount-box input{font-size:32px !important;font-weight:800;text-align:center;padding:14px 60px !important;direction:ltr}
+.amount-box .unit{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:3px;gap:3px}
+.seg button{border:0;background:none;border-radius:11px;padding:10px 6px;font-weight:800;font-size:15px;color:var(--muted)}
 .seg button.on{background:var(--accent);color:var(--on-accent)}
-.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.quick button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;justify-content:center}
+.quick button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:14.5px}
 .check{display:flex;align-items:center;gap:10px;font-size:16px;padding:6px 0}
 .check input{width:22px;height:22px;accent-color:var(--accent)}
-.err{color:var(--debt);font-size:14px;margin:-6px 0 12px;min-height:0}
+.err{color:var(--debt);font-size:14px;margin:-4px 0 12px;font-weight:700}
+.err:empty{display:none}
 .suggest{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:6px;overflow:hidden}
-.suggest button{display:block;width:100%;text-align:right;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 13px;font-size:16px}
+.suggest button{display:block;width:100%;text-align:right;border:0;border-bottom:1px solid var(--line2);background:none;padding:11px 13px;font-size:16px}
 .suggest button:last-child{border-bottom:0}
-.batch-grid{display:grid;grid-template-columns:1fr 92px;gap:8px;align-items:start}
-.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 62px);z-index:40;
+.batch-grid{display:grid;grid-template-columns:1fr 96px;gap:8px;align-items:start}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 62px);z-index:60;
   background:#1f2937;color:#fff;padding:10px 16px;border-radius:12px;font-size:15px;max-width:88vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .toast.bad{background:var(--debt)}
-.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:15px}
 .kv:last-child{border-bottom:0}
 .log-time{font-size:12px;color:var(--muted)}
 .more{display:block;margin:12px auto 0}
+/* confirm dialog: sits in the middle of the screen, away from the button that opened it */
+.dlg-back{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:24px;animation:fade .15s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.dlg{background:var(--card);border-radius:20px;padding:20px 18px 16px;width:100%;max-width:360px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.dlg h4{margin:0 0 8px;font-size:19px}
+.dlg p{margin:0 0 18px;color:var(--muted);font-size:15px;line-height:1.6}
+.dlg .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 </style>
 </head>
 <body>
@@ -146,10 +186,12 @@ h2.sec{font-size:15px;color:var(--muted);margin:18px 2px 8px;font-weight:700}
 <main id="main"></main>
 <nav class="tabs" id="tabs"></nav>
 <div id="layer"></div>
+<div id="dlg"></div>
 <script>
 'use strict';
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.3';
 const SUB_DAYS = 30;
+const MONTHS = ['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
 
 /* ---------------- icons ---------------- */
 const I = {
@@ -160,6 +202,7 @@ const I = {
   shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  fwd:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
   close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
   up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
@@ -180,11 +223,14 @@ function addDays(s, n){ const d = parseD(s); d.setDate(d.getDate()+n); return `$
 function diffDays(a, b){ return Math.round((parseD(a) - parseD(b)) / 86400000); }
 function fd(s){ if(!s) return ''; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; }
 function fts(iso){ const d = new Date(iso); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function monthName(ym){ const [y, m] = ym.split('-').map(Number); return `${MONTHS[m-1]} ${y}`; }
+function shiftMonth(ym, n){ let [y, m] = ym.split('-').map(Number); m += n; while(m > 12){ m -= 12; y++; } while(m < 1){ m += 12; y--; } return `${y}-${pad(m)}`; }
 function r2(n){ return Math.round(n * 100) / 100; }
 function fn(n){ n = r2(n); return n.toLocaleString('en-US', {maximumFractionDigits: 2}); }
 function digits(s){ return String(s ?? '').replace(/[٠-٩]/g, c => '٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[۰-۹]/g, c => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٫,]/g, '.').trim(); }
 function num(s){ const v = digits(s); if(v === '') return null; const n = Number(v); return Number.isFinite(n) ? n : NaN; }
 function norm(s){ return String(s ?? '').trim().replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase(); }
+const byDateDesc = (a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : ((a.createdAt || '') < (b.createdAt || '') ? 1 : -1);
 
 /* ---------------- storage ---------------- */
 const DB_NAME = 'dafter', STORE = 'kv';
@@ -211,9 +257,19 @@ async function kvSet(key, val){
 }
 
 /* ---------------- state ---------------- */
-function emptyState(){ return {app:'dafter', version:1, customers:[], txns:[], expenses:[], log:[], draft:{batch:[]}, meta:{createdAt:nowISO(), lastBackup:null}}; }
+function emptyState(){ return {app:'dafter', version:1, customers:[], txns:[], expenses:[], log:[], draft:{batch:[]},
+  wallet:{opening:null, openingDate:null, topups:[]}, settings:{actCost:20}, meta:{createdAt:nowISO(), lastBackup:null}}; }
+function fixState(o){
+  const e = emptyState();
+  const s = {...e, ...o};
+  s.draft = s.draft && Array.isArray(s.draft.batch) ? s.draft : {batch:[]};
+  s.wallet = {...e.wallet, ...(o.wallet || {})}; if(!Array.isArray(s.wallet.topups)) s.wallet.topups = [];
+  s.settings = {...e.settings, ...(o.settings || {})};
+  s.meta = {...e.meta, ...(o.meta || {})};
+  return s;
+}
 let S = emptyState();
-const UI = {tab:'customers', view:null, filter:'all', q:'', logLimit:150, batch:{date:today(), place:'قيس', by:'عز'}};
+const UI = {tab:'customers', view:null, filter:'all', q:'', logLimit:150, batch:{date:today(), place:'قيس', by:'عز'}, month:today().slice(0,7), listScroll:0};
 
 async function save(){ await kvSet('state', JSON.stringify(S)); }
 async function commit(logs){
@@ -223,13 +279,16 @@ async function commit(logs){
   render();
 }
 function cust(id){ return S.customers.find(c => c.id === id); }
+const active = () => S.customers.filter(c => !c.deleted);
 
 const KIND = {act:'تفعيل', debt:'دين', pay:'تسديد'};
+const actCost = t => (typeof t.cost === 'number' ? t.cost : S.settings.actCost);
 function stats(){
   const t0 = today(), m = new Map();
-  for(const c of S.customers) m.set(c.id, {bal: c.opening || 0, lastAct:null, lastPay:null});
+  for(const c of S.customers) m.set(c.id, {bal: c.opening || 0, lastAct:null, lastPay:null, n:0});
   for(const t of S.txns){
     const s = m.get(t.cid); if(!s) continue;
+    s.n++;
     if(t.kind === 'pay'){ s.bal -= t.amount; if(!s.lastPay || t.date > s.lastPay) s.lastPay = t.date; }
     else { s.bal += t.amount; if(t.kind === 'act' && (!s.lastAct || t.date > s.lastAct)) s.lastAct = t.date; }
   }
@@ -242,12 +301,34 @@ function stats(){
 }
 function stateText(s){
   if(s.st === 'none') return {t:'ما مفعّل بالتطبيق بعد', c:'muted'};
-  if(s.st === 'expired') return {t:`منتهي من ${-s.left} يوم (${fd(s.end)})`, c:'debt'};
+  if(s.st === 'expired') return {t:`منتهي من ${-s.left} يوم`, c:'debt'};
   if(s.st === 'soon') return {t: s.left === 0 ? 'ينتهي اليوم' : s.left === 1 ? 'ينتهي باچر' : `ينتهي بعد ${s.left} أيام`, c:'warn'};
   return {t:`فعّال لغاية ${fd(s.end)}`, c:'pay'};
 }
 function balText(b){ return b > 0 ? {t:fn(b), c:'debt', s:'مطلوب'} : b < 0 ? {t:fn(-b), c:'pay', s:'رصيد مقدّم'} : {t:'0', c:'muted', s:'مسدّد'}; }
-function custTx(cid){ return S.txns.filter(t => t.cid === cid).sort((a,b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (a.createdAt < b.createdAt ? 1 : -1)); }
+function custTx(cid){ return S.txns.filter(t => t.cid === cid).sort(byDateDesc); }
+
+/* wallet: opening + top-ups − activation costs, all from the opening date on */
+function walletInfo(){
+  const w = S.wallet;
+  if(w.opening == null || !w.openingDate) return null;
+  let top = 0, cost = 0, nAct = 0;
+  for(const t of w.topups) if(t.date >= w.openingDate) top += t.amount;
+  for(const t of S.txns) if(t.kind === 'act' && t.date >= w.openingDate){ cost += actCost(t); nAct++; }
+  return {opening:w.opening, date:w.openingDate, top:r2(top), cost:r2(cost), nAct, bal:r2(w.opening + top - cost)};
+}
+function monthReport(ym){
+  const inM = d => d && d.slice(0,7) === ym;
+  let collected = 0, nAct = 0, actVal = 0, actCostSum = 0, topups = 0, exp = 0;
+  for(const t of S.txns){
+    if(!inM(t.date)) continue;
+    if(t.kind === 'pay') collected += t.amount;
+    else if(t.kind === 'act'){ nAct++; actVal += t.amount; actCostSum += actCost(t); }
+  }
+  for(const t of S.wallet.topups) if(inM(t.date)) topups += t.amount;
+  for(const e of S.expenses) if(inM(e.date)) exp += e.amount;
+  return {collected:r2(collected), nAct, actVal:r2(actVal), actCost:r2(actCostSum), profit:r2(actVal - actCostSum), topups:r2(topups), exp:r2(exp), net:r2(collected - topups - exp)};
+}
 
 /* ---------------- whatsapp ---------------- */
 function waNumber(p){
@@ -292,24 +373,32 @@ function openWhatsApp(c, text){
   document.body.appendChild(a); a.click(); a.remove();
 }
 
-/* ---------------- toast ---------------- */
+/* ---------------- toast & confirm ---------------- */
 let toastT = null;
 function toast(msg, bad){
   let el = $('#toast'); if(el) el.remove();
   el = document.createElement('div'); el.id = 'toast'; el.className = 'toast' + (bad ? ' bad' : ''); el.textContent = msg;
   document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), bad ? 5000 : 2600);
 }
+let dlgOk = null, dlgOpenedAt = 0;
+function confirmBox(title, text, okLabel, onOk){
+  dlgOk = onOk; dlgOpenedAt = Date.now();
+  $('#dlg').innerHTML = `<div class="dlg-back" data-act="dlgCancel"><div class="dlg" role="alertdialog" data-act="noop">
+    <h4>${esc(title)}</h4><p>${text}</p>
+    <div class="row2"><button class="btn ghost" data-act="dlgCancel">إلغاء</button><button class="btn red" data-act="dlgOk">${esc(okLabel)}</button></div></div></div>`;
+}
+function closeDlg(){ $('#dlg').innerHTML = ''; dlgOk = null; }
 
 /* ---------------- render: shell ---------------- */
-const TABS = [['customers','الزبائن',I.users],['batch','الدفتر',I.book],['expenses','المصاريف',I.wallet],['log','السجل',I.list],['backup','النسخ',I.shield]];
+const TABS = [['customers','الزبائن',I.users],['batch','الدفتر',I.book],['money','حساباتي',I.wallet],['log','السجل',I.list],['backup','النسخ',I.shield]];
 function render(){
-  $('#tabs').innerHTML = TABS.map(([k,l,ic]) => `<button data-act="tab" data-k="${k}" class="${UI.tab===k && !UI.view ? 'on' : ''}">${ic}<span>${l}</span></button>`).join('');
+  $('#tabs').innerHTML = TABS.map(([k,l,ic]) => `<button data-act="tab" data-k="${k}" class="${UI.tab===k && !UI.view ? 'on' : ''}"><i>${ic}</i><span>${l}</span></button>`).join('');
   const st = stats();
   if(UI.view && UI.view.name === 'customer'){
     const c = cust(UI.view.id); if(!c){ UI.view = null; return render(); }
     renderCustomer(c, st.get(c.id)); return;
   }
-  const f = {customers:renderCustomers, batch:renderBatch, expenses:renderExpenses, log:renderLog, backup:renderBackup}[UI.tab];
+  const f = {customers:renderCustomers, batch:renderBatch, money:renderMoney, log:renderLog, backup:renderBackup}[UI.tab];
   f(st);
 }
 function setTop(title, back){
@@ -321,16 +410,19 @@ function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navig
 /* ---------------- customers list ---------------- */
 function renderCustomers(st){
   setTop('الزبائن');
-  const all = S.customers;
+  const all = active();
   let total = 0, debtors = 0, noOpen = 0, soon = 0, expired = 0;
   for(const c of all){ const s = st.get(c.id); if(s.bal > 0){ total += s.bal; debtors++; } if(c.opening == null) noOpen++; if(!c.stopped){ if(s.st==='soon') soon++; if(s.st==='expired') expired++; } }
+  const nDeleted = S.customers.length - all.length;
   const days = S.meta.lastBackup ? diffDays(today(), S.meta.lastBackup.slice(0,10)) : null;
   let h = '<div class="stack">';
   if(isIOS() && !standalone()) h += `<div class="banner info"><div class="grow">للتثبيت: زر المشاركة ⬆︎ ثم <b>إضافة إلى الشاشة الرئيسية</b>. افتحه دائماً من الأيقونة، لأن Safari إله بيانات منفصلة.</div></div>`;
   if(all.length && (days === null || days >= 7)) h += `<div class="banner warn"><div class="grow">${days === null ? 'ما سويت نسخة احتياطية بعد' : `صار ${days} يوم من آخر نسخة احتياطية`}</div><button data-act="tab" data-k="backup"><span>صدّر هسه</span></button></div>`;
-  h += `<div class="summary"><div class="card"><div class="label">مجموع الديون</div><div class="big debt"><span class="num">${fn(total)}</span></div><div class="label">ألف دينار</div></div>
-        <div class="card"><div class="label">عليهم دين</div><div class="big"><span class="num">${debtors}</span></div><div class="label">من ${all.length} زبون</div></div></div>`;
-  if(!all.length){
+  h += `<div class="card stats3">
+      <div><div class="label">مجموع الديون</div><div class="v debt num">${fn(total)}</div><div class="u">ألف دينار</div></div>
+      <button data-act="filter" data-k="debt"><div class="label">عليهم دين</div><div class="v num">${debtors}</div><div class="u">من ${all.length} زبون</div></button>
+      <button data-act="filter" data-k="soon"><div class="label">ينتهي قريباً</div><div class="v num ${soon ? 'warn' : ''}">${soon}</div><div class="u">${expired ? `و${expired} منتهي` : 'خلال 3 أيام'}</div></button></div>`;
+  if(!all.length && !nDeleted){
     h += `<div class="card empty">ما بيه زبائن بعد.<br>اضغط <b>+ زبون</b> أو استعيد ملف الزبائن من تبويب <b>النسخ</b>.</div></div>`;
     $('#main').innerHTML = h + fab(); return;
   }
@@ -338,6 +430,7 @@ function renderCustomers(st){
   const chips = [['all','الكل'],['debt','عليهم دين'],['soon',`ينتهي قريباً${soon?' ('+soon+')':''}`],['expired',`منتهي${expired?' ('+expired+')':''}`]];
   if(noOpen) chips.push(['noopen', `بدون دين افتتاحي (${noOpen})`]);
   chips.push(['stopped','متوقفين']);
+  if(nDeleted) chips.push(['deleted', `المحذوفين (${nDeleted})`]);
   h += `<div class="chips">${chips.map(([k,l]) => `<button class="chip ${UI.filter===k?'on':''}" data-act="filter" data-k="${k}">${l}</button>`).join('')}</div>`;
   h += `<div class="list" id="clist">${customerRows(st)}</div></div>`;
   $('#main').innerHTML = h + fab();
@@ -347,6 +440,8 @@ function customerRows(st){
   const q = norm(UI.q), f = UI.filter;
   let rows = S.customers.filter(c => {
     const s = st.get(c.id);
+    if(f === 'deleted') return !!c.deleted && (!q || norm(c.name).includes(q));
+    if(c.deleted) return false;
     if(q && !norm(c.name).includes(q)) return false;
     if(f === 'stopped') return !!c.stopped;
     if(q) return true;
@@ -364,8 +459,8 @@ function customerRows(st){
     const s = st.get(c.id), b = balText(s.bal), x = stateText(s);
     const wa = (f === 'soon' || f === 'expired') ? `<button class="wa-mini" data-act="waExpiry" data-id="${c.id}" aria-label="واتساب">${I.wa}</button>` : '';
     return `<div class="row" data-act="openCustomer" data-id="${c.id}" role="button">
-      <div class="main"><div class="title">${esc(c.name)}${c.stopped ? ' <span class="tag acc">متوقف</span>' : ''}</div>
-      <div class="sub"><span class="${x.c}">${x.t}</span>${c.opening == null ? ' · <span class="warn">بدون دين افتتاحي</span>' : ''}</div></div>
+      <div class="main"><div class="title">${esc(c.name)}${c.stopped ? ' <span class="tag acc">متوقف</span>' : ''}${c.deleted ? ' <span class="tag debt">محذوف</span>' : ''}</div>
+      <div class="sub"><span class="pill ${x.c}">${x.t}</span>${c.opening == null && !c.deleted ? ' <span class="warn">· بدون دين افتتاحي</span>' : ''}</div></div>
       ${wa}<div class="amt ${b.c}"><span class="num">${b.t}</span><small>${b.s}</small></div></div>`;
   }).join('');
 }
@@ -373,21 +468,24 @@ function customerRows(st){
 /* ---------------- customer page ---------------- */
 function renderCustomer(c, s){
   setTop(c.name, true);
-  $('#top').insertAdjacentHTML('beforeend', `<button class="icon-btn" data-act="editCustomer" data-id="${c.id}" aria-label="تعديل">${I.edit}</button>`);
+  if(!c.deleted) $('#top').insertAdjacentHTML('beforeend', `<button class="icon-btn" data-act="editCustomer" data-id="${c.id}" aria-label="تعديل">${I.edit}</button>`);
   const b = balText(s.bal), x = stateText(s);
   let h = '<div class="stack">';
+  if(c.deleted) h += `<div class="banner bad"><div class="grow">هذا الزبون محذوف. حركاته القديمة بعدها محسوبة بكشف الأشهر.</div><button data-act="restoreCustomer" data-id="${c.id}"><span>استرجاع</span></button></div>`;
   h += `<div class="card balance"><div class="label">${b.s}</div><div class="big ${b.c}"><span class="num">${b.t}</span></div><div class="label">ألف دينار</div>
-        <div class="state ${x.c}">${x.t}</div>${c.phone ? `<div class="label" style="margin-top:4px"><a href="tel:${esc(digits(c.phone))}" style="color:inherit"><span class="num">${esc(c.phone)}</span></a></div>` : ''}</div>`;
-  if(c.opening == null) h += `<div class="banner warn"><div class="grow">ما محدد الدين الافتتاحي (الدين قبل ما تبدي بالتطبيق).</div><button data-act="editCustomer" data-id="${c.id}"><span>حدده</span></button></div>`;
-  h += `<div class="actions">
+        <div class="state"><span class="pill ${x.c}">${x.t}</span></div>${c.phone ? `<div class="label" style="margin-top:8px"><a href="tel:${esc(digits(c.phone))}" style="color:inherit"><span class="num">${esc(c.phone)}</span></a></div>` : ''}</div>`;
+  if(c.opening == null && !c.deleted) h += `<div class="banner warn"><div class="grow">ما محدد الدين الافتتاحي (الدين قبل ما تبدي بالتطبيق).</div><button data-act="editCustomer" data-id="${c.id}"><span>حدده</span></button></div>`;
+  if(!c.deleted) h += `<div class="actions">
       <button class="act charge" data-act="txForm" data-kind="act" data-id="${c.id}">${I.up}تفعيل</button>
       <button class="act payb" data-act="txForm" data-kind="pay" data-id="${c.id}">${I.down}تسديد</button>
       <button class="act other" data-act="txForm" data-kind="debt" data-id="${c.id}">${I.note}دين آخر</button>
       <button class="act wa" data-act="waCustomer" data-id="${c.id}">${I.wa}واتساب</button></div>`;
   const tx = custTx(c.id);
-  h += `<h2 class="sec">كشف الحساب (${tx.length} حركة)</h2><div class="list">`;
-  let bal = s.bal;
+  h += `<h2 class="sec">كشف الحساب <span class="label">${tx.length} حركة</span></h2><div class="list">`;
+  let bal = s.bal, curM = null;
   for(const t of tx){
+    const m = t.date.slice(0,7);
+    if(m !== curM){ curM = m; h += `<div class="month-h">${monthName(m)}</div>`; }
     const isPay = t.kind === 'pay';
     const meta = [fd(t.date)];
     if(isPay) meta.push(t.place === 'مباشر' ? 'مباشر' : 'عند قيس', 'استلم: ' + (t.by || 'عز'));
@@ -398,7 +496,7 @@ function renderCustomer(c, s){
       <div class="amt ${isPay ? 'pay' : 'debt'}"><span class="num">${isPay ? '−' : '+'}${fn(t.amount)}</span><small>الرصيد بعدها <span class="num">${fn(bal)}</span></small></div></button>`;
     bal = r2(bal - (isPay ? -t.amount : t.amount));
   }
-  h += `<button class="row opening-row" data-act="editCustomer" data-id="${c.id}"><div class="main"><div class="title">الدين الافتتاحي</div>
+  h += `<button class="row opening-row" data-act="editCustomer" data-id="${c.id}" ${c.deleted ? 'disabled' : ''}><div class="main"><div class="title">الدين الافتتاحي</div>
         <div class="sub">${c.opening == null ? 'ما محدد — اضغط لتحديده' : (c.openingDate ? 'بتاريخ ' + fd(c.openingDate) : 'الدين قبل التطبيق')}</div></div>
         <div class="amt"><span class="num">${c.opening == null ? '—' : fn(c.opening)}</span></div></button></div>`;
   if(c.note) h += `<div class="card"><div class="label">ملاحظة</div>${esc(c.note)}</div>`;
@@ -411,17 +509,21 @@ let modalSave = null;
 function openModal(title, body, saveLabel, onSave){
   modalSave = onSave || null;
   $('#layer').innerHTML = `<div class="modal" role="dialog"><header><button class="icon-btn" data-act="closeModal" aria-label="إغلاق">${I.close}</button><h3>${esc(title)}</h3>
-    ${onSave ? `<button class="btn sm" data-act="modalSave">${esc(saveLabel || 'حفظ')}</button>` : '<span style="width:40px"></span>'}</header><div class="body">${body}</div></div>`;
+    ${onSave ? `<button class="btn sm" data-act="modalSave">${esc(saveLabel || 'حفظ')}</button>` : '<span style="width:42px"></span>'}</header><div class="body">${body}
+    ${onSave ? `<button class="btn" style="margin-top:6px" data-act="modalSave">${esc(saveLabel || 'حفظ')}</button>` : ''}</div></div>`;
 }
 function closeModal(){ $('#layer').innerHTML = ''; modalSave = null; }
 function fv(id){ const el = document.getElementById(id); return el ? el.value : ''; }
 function showErr(msg){ const e = $('#ferr'); if(e){ e.textContent = msg; e.scrollIntoView({block:'center'}); } else toast(msg, true); }
 function segHTML(id, opts, val){ return `<div class="seg" id="${id}" data-val="${esc(val)}">${opts.map(o => `<button type="button" data-act="seg" data-v="${esc(o)}" class="${o===val?'on':''}">${o === 'قيس' ? 'عند قيس' : esc(o)}</button>`).join('')}</div>`; }
+function amountField(id, label, val, placeholder){
+  return `<div class="field"><label>${esc(label)}</label><div class="amount-box"><input id="${id}" inputmode="decimal" value="${esc(val)}" placeholder="${esc(placeholder || '0')}" autocomplete="off"><span class="unit">ألف</span></div>`;
+}
 
 /* customer form */
 function customerForm(c){
   const isNew = !c; c = c || {name:'', phone:'', price:35, opening:null, note:'', stopped:false};
-  const hasTx = !isNew && S.txns.some(t => t.cid === c.id);
+  const bal = isNew ? 0 : stats().get(c.id).bal;
   const body = `<div class="err" id="ferr"></div>
     <div class="field"><label>الاسم</label><input id="f_name" value="${esc(c.name)}" autocomplete="off"></div>
     <div class="field"><label>رقم الهاتف (للواتساب)</label><input id="f_phone" type="tel" inputmode="tel" value="${esc(c.phone)}" placeholder="07xxxxxxxxx"></div>
@@ -429,13 +531,15 @@ function customerForm(c){
     <div class="field"><label>الدين الافتتاحي (ألف)</label><input id="f_open" inputmode="decimal" value="${c.opening == null ? '' : esc(c.opening)}" placeholder="مثلاً 100 — إذا ما عليه شي اكتب 0">
       <div class="hint">الدين اللي عليه قبل ما تبدي تسجل بالتطبيق. تكدر تغيره بعدين وينحفظ التغيير بالسجل.</div></div>
     <div class="field"><label>ملاحظة</label><input id="f_note" value="${esc(c.note)}"></div>
-    ${isNew ? '' : `<label class="check"><input type="checkbox" id="f_stop" ${c.stopped ? 'checked' : ''}> متوقف (يختفي من القائمة الرئيسية)</label>`}
-    ${isNew ? '' : hasTx ? '' : `<button class="btn danger" style="margin-top:18px" data-act="delCustomer" data-id="${c.id}">حذف الزبون</button>`}`;
+    ${isNew ? '' : `<label class="check"><input type="checkbox" id="f_stop" ${c.stopped ? 'checked' : ''}> متوقف (يختفي من القائمة الرئيسية)</label>`}`;
+  const del = isNew ? '' : bal === 0
+    ? `<div style="margin-top:28px"><button class="btn danger" data-act="delCustomer" data-id="${c.id}">حذف الزبون</button></div>`
+    : `<div class="hint" style="margin-top:24px;text-align:center">الحذف متاح بس إذا حساب الزبون صفر (هسه ${balText(bal).s}: ${fn(Math.abs(bal))}).</div>`;
   openModal(isNew ? 'زبون جديد' : 'تعديل الزبون', body, 'حفظ', async () => {
     const name = fv('f_name').trim().replace(/\s+/g, ' ');
     const price = num(fv('f_price')), open = num(fv('f_open'));
     if(!name) return showErr('اكتب الاسم');
-    if(S.customers.some(x => x.id !== c.id && norm(x.name) === norm(name))) return showErr('هذا الاسم موجود. اكتب اسم مميز (مثلاً أضف اسم الأب).');
+    if(active().some(x => x.id !== c.id && norm(x.name) === norm(name))) return showErr('هذا الاسم موجود. اكتب اسم مميز (مثلاً أضف اسم الأب).');
     if(price === null || Number.isNaN(price) || price < 0) return showErr('سعر الاشتراك غلط');
     if(Number.isNaN(open)) return showErr('الدين الافتتاحي غلط');
     const phone = fv('f_phone').trim(), note = fv('f_note').trim();
@@ -443,7 +547,7 @@ function customerForm(c){
       const nc = {id:uid(), name, phone, price, opening:open, openingDate: open == null ? null : today(), note, stopped:false, createdAt:nowISO()};
       S.customers.push(nc); closeModal();
       await commit({type:'زبون جديد', cid:nc.id, text:`${name}${open != null ? ` — دين افتتاحي ${fn(open)}` : ''}`});
-      UI.view = {name:'customer', id:nc.id}; render(); toast('انضاف الزبون');
+      UI.listScroll = window.scrollY; UI.view = {name:'customer', id:nc.id}; history.pushState({v:1}, ''); render(); scrollTo(0,0); toast('انضاف الزبون');
     } else {
       const ch = [];
       if(c.name !== name) ch.push(`الاسم: ${c.name} ← ${name}`);
@@ -460,6 +564,7 @@ function customerForm(c){
       toast('انحفظ');
     }
   });
+  if(del) $('.modal .body').insertAdjacentHTML('beforeend', del);
 }
 
 /* transaction form */
@@ -468,30 +573,33 @@ function txForm(kind, cid, t){
   t = t || {kind, date:today(), amount: kind === 'act' ? c.price : '', place:'قيس', by:'عز', note:''};
   kind = t.kind;
   const title = (isNew ? '' : 'تعديل ') + (kind === 'act' ? 'تفعيل' : kind === 'pay' ? 'تسديد' : 'دين آخر') + ' — ' + c.name;
-  let body = `<div class="err" id="ferr"></div>
-    <div class="field"><label>التاريخ</label><input id="f_date" type="date" value="${t.date}"></div>
-    <div class="field"><label>المبلغ (ألف)</label><input id="f_amt" inputmode="decimal" value="${esc(t.amount)}" placeholder="${kind === 'pay' && s.bal > 0 ? 'المطلوب ' + fn(s.bal) : ''}">`;
+  let body = `<div class="err" id="ferr"></div>` + amountField('f_amt', kind === 'act' ? 'مبلغ الاشتراك على الزبون' : 'المبلغ', t.amount, kind === 'pay' && s.bal > 0 ? fn(s.bal) : '0');
   if(kind === 'pay'){
     const q = [c.price, c.price * 2]; if(s.bal > 0 && !q.includes(s.bal)) q.push(s.bal);
     body += `<div class="quick">${q.map(v => `<button type="button" data-act="quickAmt" data-v="${v}">${fn(v)}${v === s.bal ? ' (الكل)' : ''}</button>`).join('')}</div>`;
   }
+  body += `</div><div class="field"><label>التاريخ</label><input id="f_date" type="date" value="${t.date}">`;
+  if(kind === 'act') body += `<div class="hint" id="f_endhint">ينتهي الاشتراك بتاريخ ${fd(addDays(t.date, SUB_DAYS))}</div>`;
   body += `</div>`;
-  if(kind === 'act') body += `<div class="field hint" id="f_endhint">ينتهي الاشتراك بتاريخ ${fd(addDays(t.date, SUB_DAYS))}</div>`;
+  if(kind === 'act') body += `<div class="field"><label>الكلفة من رصيدي (ألف)</label><input id="f_cost" inputmode="decimal" value="${esc(isNew ? S.settings.actCost : actCost(t))}">
+      <div class="hint">تنخصم من رصيدك عند المزوّد. غيّرها إذا الاشتراك مختلف.</div></div>`;
   if(kind === 'pay') body += `<div class="field"><label>مكان التسديد</label>${segHTML('f_place', ['قيس','مباشر'], t.place || 'قيس')}</div>
       <div class="field"><label>استلم من قبل</label><input id="f_by" value="${esc(t.by || 'عز')}"></div>`;
   body += `<div class="field"><label>${kind === 'debt' ? 'السبب / ملاحظة' : 'ملاحظة'}</label><input id="f_note" value="${esc(t.note)}"></div>`;
-  if(!isNew) body += `<button class="btn danger" style="margin-top:10px" data-act="delTx" data-id="${t.id}">حذف هذي الحركة</button>`;
   openModal(title, body, 'حفظ', async () => {
     const date = fv('f_date'), amt = num(fv('f_amt'));
-    if(!date) return showErr('اختار التاريخ');
     if(amt === null || Number.isNaN(amt) || amt <= 0) return showErr('اكتب مبلغ صحيح');
+    if(!date) return showErr('اختار التاريخ');
+    let cost;
+    if(kind === 'act'){ cost = num(fv('f_cost')); if(cost === null || Number.isNaN(cost) || cost < 0) return showErr('اكتب الكلفة (أو 0)'); }
     const place = kind === 'pay' ? ($('#f_place').dataset.val || 'قيس') : undefined;
     const by = kind === 'pay' ? (fv('f_by').trim() || 'عز') : undefined;
     const note = fv('f_note').trim();
-    const desc = x => `${KIND[x.kind]} ${fn(x.amount)} بتاريخ ${fd(x.date)}${x.kind === 'pay' ? ` (${x.place === 'مباشر' ? 'مباشر' : 'عند قيس'}، استلم: ${x.by})` : ''}${x.note ? ' — ' + x.note : ''}`;
+    const desc = x => `${KIND[x.kind]} ${fn(x.amount)} بتاريخ ${fd(x.date)}${x.kind === 'act' ? ` (كلفة ${fn(actCost(x))})` : ''}${x.kind === 'pay' ? ` (${x.place === 'مباشر' ? 'مباشر' : 'عند قيس'}، استلم: ${x.by})` : ''}${x.note ? ' — ' + x.note : ''}`;
     if(isNew){
       const nt = {id:uid(), cid, kind, date, amount:amt, note, createdAt:nowISO()};
       if(kind === 'pay'){ nt.place = place; nt.by = by; }
+      if(kind === 'act') nt.cost = cost;
       S.txns.push(nt); closeModal();
       await commit({type:KIND[kind], cid, text:`${c.name}: ${desc(nt)}`});
       const ns = stats().get(cid);
@@ -502,19 +610,21 @@ function txForm(kind, cid, t){
       const before = desc(t);
       Object.assign(t, {date, amount:amt, note, updatedAt:nowISO()});
       if(kind === 'pay'){ t.place = place; t.by = by; }
+      if(kind === 'act') t.cost = cost;
       closeModal();
       const after = desc(t);
       if(before !== after) await commit({type:'تعديل حركة', cid, text:`${c.name}: ${before} ← ${after}`}); else render();
       toast('انحفظ');
     }
   });
+  if(!isNew) $('.modal .body').insertAdjacentHTML('beforeend', `<div style="margin-top:28px"><button class="btn danger" data-act="delTx" data-id="${t.id}">حذف هذي الحركة</button></div>`);
 }
 
 function waPrompt(c, text, title){
   const body = `<div class="field"><label>نص الرسالة (تكدر تعدله)</label><textarea id="f_msg">${esc(text)}</textarea>
     <div class="hint">${c.phone ? 'راح ينفتح واتساب على رقم ' + esc(c.phone) : 'ما مسجل رقم لهذا الزبون، راح تختار المحادثة من واتساب.'}</div></div>
     <button class="btn green" data-act="sendWa" data-id="${c.id}">فتح واتساب</button>
-    <button class="btn ghost" style="margin-top:10px" data-act="closeModal">لا، شكراً</button>`;
+    <button class="btn ghost" data-act="closeModal">لا، شكراً</button>`;
   openModal(title || 'رسالة واتساب', body);
 }
 
@@ -545,43 +655,112 @@ let batchPick = null;
 function batchSuggest(){
   const q = norm(fv('b_name')); const box = $('#b_sug'); batchPick = null;
   if(!q){ box.innerHTML = ''; return; }
-  const m = S.customers.filter(c => norm(c.name).includes(q)).slice(0, 6);
-  const exact = S.customers.find(c => norm(c.name) === q); if(exact) batchPick = exact.id;
+  const m = active().filter(c => norm(c.name).includes(q)).slice(0, 6);
+  const exact = active().find(c => norm(c.name) === q); if(exact) batchPick = exact.id;
   box.innerHTML = m.length ? `<div class="suggest">${m.map(c => `<button type="button" data-act="batchPick" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>` : `<div class="hint warn" style="margin-top:6px">ماكو زبون بهذا الاسم</div>`;
 }
 
-/* ---------------- expenses ---------------- */
-function renderExpenses(){
-  setTop('المصاريف');
-  const ex = [...S.expenses].sort((a,b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (a.createdAt < b.createdAt ? 1 : -1));
-  const m = today().slice(0,7);
-  const monthT = ex.filter(e => e.date.slice(0,7) === m).reduce((a,e) => a + e.amount, 0), allT = ex.reduce((a,e) => a + e.amount, 0);
-  let h = `<div class="stack"><div class="label">مصاريف تنصرف من فلوس الاشتراكات (مولد، بانزين، تصليح…). ما تأثر على ديون الزبائن.</div>
-    <div class="summary"><div class="card"><div class="label">هذا الشهر</div><div class="big"><span class="num">${fn(monthT)}</span></div><div class="label">ألف دينار</div></div>
-    <div class="card"><div class="label">الكل</div><div class="big"><span class="num">${fn(allT)}</span></div><div class="label">ألف دينار</div></div></div>`;
+/* ---------------- money: wallet + month report + expenses ---------------- */
+function renderMoney(){
+  setTop('حساباتي');
+  const w = walletInfo(), ym = UI.month, r = monthReport(ym);
+  let h = '<div class="stack">';
+  if(w){
+    h += `<div class="card wallet"><div class="label">رصيدي عند المزوّد</div>
+      <div class="big ${w.bal < 0 ? 'debt' : 'accent'}"><span class="num">${fn(w.bal)}</span></div><div class="label">ألف دينار</div>
+      <div class="label" style="margin-top:8px">من ${fd(w.date)}: افتتاحي <span class="num">${fn(w.opening)}</span> + شحن <span class="num">${fn(w.top)}</span> − ${w.nAct} تفعيل <span class="num">${fn(w.cost)}</span></div>
+      <div class="btns"><button class="btn" data-act="addTopup">${'+ شحن رصيد'}</button><button class="btn ghost" data-act="openingForm">الرصيد الافتتاحي</button></div></div>`;
+  } else {
+    h += `<div class="card wallet"><div class="label">رصيدي عند المزوّد</div><div class="big muted">—</div>
+      <div class="label" style="margin:6px 0 2px">حدد رصيدك الافتتاحي وتاريخه حتى يبدي الحساب.</div>
+      <div class="btns"><button class="btn" data-act="openingForm">الرصيد الافتتاحي</button><button class="btn ghost" data-act="addTopup">+ شحن رصيد</button></div></div>`;
+  }
+  h += `<div class="card monthbar"><button class="icon-btn" data-act="month" data-n="-1" aria-label="الشهر السابق">${I.back}</button>
+      <div class="m">${monthName(ym)}</div><button class="icon-btn" data-act="month" data-n="1" aria-label="الشهر التالي">${I.fwd}</button></div>`;
+  const line = (k, sub, v, cls) => `<div class="line"><div class="k">${k}${sub ? `<small>${sub}</small>` : ''}</div><div class="v ${cls || ''}"><span class="num">${v}</span></div></div>`;
+  h += `<div class="card rep">
+      ${line('المستحصل', 'تسديدات الزبائن', fn(r.collected), 'pay')}
+      ${line('التفعيلات', `${r.nAct} تفعيل — قيمتها على الزبائن`, fn(r.actVal))}
+      ${line('صرفت', 'كلفة التفعيلات من رصيدي', fn(r.actCost), 'debt')}
+      ${line('ربح التفعيلات', 'قيمتها − كلفتها', fn(r.profit), r.profit >= 0 ? 'pay' : 'debt')}
+      ${line('شحنت رصيد', '', fn(r.topups))}
+      ${line('المصاريف', 'مولد وغيره', fn(r.exp), 'debt')}
+      <div class="line total"><div class="k">الصافي<small>المستحصل − الشحن − المصاريف</small></div><div class="v ${r.net >= 0 ? 'pay' : 'debt'}"><span class="num">${fn(r.net)}</span></div></div>
+      <div class="label" style="text-align:center;margin-top:6px">المبالغ بالألف دينار</div></div>`;
+  const tops = S.wallet.topups.filter(t => t.date.slice(0,7) === ym).sort(byDateDesc);
+  h += `<h2 class="sec">شحنات الرصيد <button data-act="addTopup">+ شحن</button></h2>`;
+  h += tops.length ? `<div class="list">${tops.map(t => `<button class="row" data-act="editTopup" data-id="${t.id}"><div class="main"><div class="title">شحن رصيد</div>
+      <div class="sub">${fd(t.date)}${t.note ? ' · ' + esc(t.note) : ''}</div></div><div class="amt accent"><span class="num">+${fn(t.amount)}</span></div></button>`).join('')}</div>`
+    : `<div class="card empty" style="padding:16px">ماكو شحن بهذا الشهر</div>`;
+  const ex = S.expenses.filter(e => e.date.slice(0,7) === ym).sort(byDateDesc);
+  h += `<h2 class="sec">المصاريف <button data-act="addExp">+ مصروف</button></h2>`;
   h += ex.length ? `<div class="list">${ex.map(e => `<button class="row" data-act="editExp" data-id="${e.id}"><div class="main"><div class="title">${esc(e.reason || 'مصروف')}</div>
-      <div class="sub">${fd(e.date)}${e.by ? ' · صرفها: ' + esc(e.by) : ''}</div></div><div class="amt"><span class="num">${fn(e.amount)}</span></div></button>`).join('')}</div>`
-    : `<div class="card empty">ماكو مصاريف مسجلة</div>`;
+      <div class="sub">${fd(e.date)}${e.by ? ' · صرفها: ' + esc(e.by) : ''}</div></div><div class="amt debt"><span class="num">${fn(e.amount)}</span></div></button>`).join('')}</div>`
+    : `<div class="card empty" style="padding:16px">ماكو مصاريف بهذا الشهر</div>`;
+  h += `<div class="card" style="display:flex;align-items:center;gap:10px"><div style="flex:1"><div class="label">كلفة التفعيل الافتراضية</div><b class="num">${fn(S.settings.actCost)}</b> ألف</div>
+      <button class="btn ghost sm" data-act="costForm">تغيير</button></div>`;
   h += '</div>';
-  $('#main').innerHTML = h + `<button class="fab" data-act="addExp">${I.plus}<span>مصروف</span></button>`;
+  $('#main').innerHTML = h;
+}
+function openingForm(){
+  const w = S.wallet;
+  const body = `<div class="err" id="ferr"></div>` + amountField('f_amt', 'رصيدي عند المزوّد', w.opening == null ? '' : w.opening) + `</div>
+    <div class="field"><label>بتاريخ</label><input id="f_date" type="date" value="${w.openingDate || today()}">
+    <div class="hint">التفعيلات والشحنات من هذا التاريخ وطالع تنحسب على الرصيد. اللي قبله محسوبة بالرقم الافتتاحي.</div></div>`;
+  openModal('الرصيد الافتتاحي', body, 'حفظ', async () => {
+    const amt = num(fv('f_amt')), date = fv('f_date');
+    if(amt === null || Number.isNaN(amt)) return showErr('اكتب الرصيد (يكدر يكون 0)');
+    if(!date) return showErr('اختار التاريخ');
+    const before = w.opening == null ? '—' : `${fn(w.opening)} بتاريخ ${fd(w.openingDate)}`;
+    w.opening = amt; w.openingDate = date; closeModal();
+    await commit({type:'رصيد افتتاحي', text:`${before} ← ${fn(amt)} بتاريخ ${fd(date)}`});
+    toast('انحفظ');
+  });
+}
+function topupForm(t){
+  const isNew = !t; t = t || {date:today(), amount:'', note:''};
+  const body = `<div class="err" id="ferr"></div>` + amountField('f_amt', 'مبلغ الشحن', t.amount) + `</div>
+    <div class="field"><label>التاريخ</label><input id="f_date" type="date" value="${t.date}"></div>
+    <div class="field"><label>ملاحظة</label><input id="f_note" value="${esc(t.note)}"></div>`;
+  openModal(isNew ? 'شحن رصيد' : 'تعديل شحن', body, 'حفظ', async () => {
+    const amt = num(fv('f_amt')), date = fv('f_date'), note = fv('f_note').trim();
+    if(amt === null || Number.isNaN(amt) || amt <= 0) return showErr('اكتب مبلغ صحيح');
+    if(!date) return showErr('اختار التاريخ');
+    const d = x => `${fn(x.amount)} بتاريخ ${fd(x.date)}${x.note ? ' — ' + x.note : ''}`;
+    if(isNew){ const nt = {id:uid(), date, amount:amt, note, createdAt:nowISO()}; S.wallet.topups.push(nt); closeModal(); await commit({type:'شحن رصيد', text:d(nt)}); }
+    else { const before = d(t); Object.assign(t, {date, amount:amt, note, updatedAt:nowISO()}); closeModal(); if(before !== d(t)) await commit({type:'تعديل شحن', text:`${before} ← ${d(t)}`}); else render(); }
+    toast('انحفظ');
+  });
+  if(!isNew) $('.modal .body').insertAdjacentHTML('beforeend', `<div style="margin-top:28px"><button class="btn danger" data-act="delTopup" data-id="${t.id}">حذف الشحن</button></div>`);
+}
+function costForm(){
+  const body = `<div class="err" id="ferr"></div>` + amountField('f_amt', 'كلفة التفعيل الافتراضية', S.settings.actCost) + `
+    <div class="hint">تطلع جاهزة بكل تفعيل جديد. التفعيلات القديمة تبقى بكلفتها.</div></div>`;
+  openModal('كلفة التفعيل', body, 'حفظ', async () => {
+    const v = num(fv('f_amt'));
+    if(v === null || Number.isNaN(v) || v < 0) return showErr('اكتب رقم صحيح');
+    const before = S.settings.actCost;
+    S.settings.actCost = v; closeModal();
+    if(before !== v) await commit({type:'كلفة التفعيل', text:`${fn(before)} ← ${fn(v)}`}); else render();
+    toast('انحفظ');
+  });
 }
 function expForm(e){
   const isNew = !e; e = e || {date:today(), amount:'', by:'', reason:''};
-  const body = `<div class="err" id="ferr"></div>
+  const body = `<div class="err" id="ferr"></div>` + amountField('f_amt', 'المبلغ', e.amount) + `</div>
     <div class="field"><label>التاريخ</label><input id="f_date" type="date" value="${e.date}"></div>
-    <div class="field"><label>المبلغ (ألف)</label><input id="f_amt" inputmode="decimal" value="${esc(e.amount)}"></div>
     <div class="field"><label>منو صرف / استلم</label><input id="f_by" value="${esc(e.by)}" placeholder="مثلاً علي، قيس"></div>
-    <div class="field"><label>السبب</label><input id="f_reason" value="${esc(e.reason)}" placeholder="مثلاً مولد، بانزين، تصليح ماطور"></div>
-    ${isNew ? '' : `<button class="btn danger" data-act="delExp" data-id="${e.id}">حذف المصروف</button>`}`;
+    <div class="field"><label>السبب</label><input id="f_reason" value="${esc(e.reason)}" placeholder="مثلاً مولد، بانزين، تصليح ماطور"></div>`;
   openModal(isNew ? 'مصروف جديد' : 'تعديل مصروف', body, 'حفظ', async () => {
     const date = fv('f_date'), amt = num(fv('f_amt')), by = fv('f_by').trim(), reason = fv('f_reason').trim();
-    if(!date) return showErr('اختار التاريخ');
     if(amt === null || Number.isNaN(amt) || amt <= 0) return showErr('اكتب مبلغ صحيح');
+    if(!date) return showErr('اختار التاريخ');
     const d = x => `${fn(x.amount)} بتاريخ ${fd(x.date)}${x.reason ? ' — ' + x.reason : ''}${x.by ? ' (صرفها: ' + x.by + ')' : ''}`;
     if(isNew){ const ne = {id:uid(), date, amount:amt, by, reason, createdAt:nowISO()}; S.expenses.push(ne); closeModal(); await commit({type:'مصروف', text:d(ne)}); }
     else { const before = d(e); Object.assign(e, {date, amount:amt, by, reason, updatedAt:nowISO()}); closeModal(); if(before !== d(e)) await commit({type:'تعديل مصروف', text:`${before} ← ${d(e)}`}); else render(); }
     toast('انحفظ');
   });
+  if(!isNew) $('.modal .body').insertAdjacentHTML('beforeend', `<div style="margin-top:28px"><button class="btn danger" data-act="delExp" data-id="${e.id}">حذف المصروف</button></div>`);
 }
 
 /* ---------------- log ---------------- */
@@ -606,9 +785,10 @@ async function renderBackup(){
   const lb = S.meta.lastBackup;
   let h = `<div class="stack"><div class="card">
       <div class="kv"><span>آخر نسخة احتياطية</span><b>${lb ? `<span class="num">${fts(lb)}</span>` : 'ما صارت'}</b></div>
-      <div class="kv"><span>الزبائن</span><b class="num">${S.customers.length}</b></div>
+      <div class="kv"><span>الزبائن</span><b class="num">${active().length}</b></div>
       <div class="kv"><span>الحركات</span><b class="num">${S.txns.length}</b></div>
       <div class="kv"><span>المصاريف</span><b class="num">${S.expenses.length}</b></div>
+      <div class="kv"><span>شحنات الرصيد</span><b class="num">${S.wallet.topups.length}</b></div>
       <div class="kv"><span>حماية التخزين من المسح</span><b id="persist">…</b></div></div>
     <button class="btn" data-act="exportBackup">تصدير نسخة احتياطية</button>
     <div class="label">يطلعلك خيار المشاركة: احفظها بـ"الملفات" أو دزها لنفسك بتيليغرام أو واتساب. سويها كل أسبوع.</div>
@@ -641,10 +821,10 @@ async function exportBackup(){
   if(!done){
     const url = URL.createObjectURL(new Blob([data], {type:'application/json'}));
     const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 4000); done = true;
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
   S.meta.lastBackup = nowISO();
-  await commit({type:'تصدير نسخة', text:`${name} — ${S.customers.length} زبون، ${S.txns.length} حركة`});
+  await commit({type:'تصدير نسخة', text:`${name} — ${active().length} زبون، ${S.txns.length} حركة`});
   toast('انصدّرت النسخة ✓');
 }
 function validBackup(o){
@@ -652,26 +832,24 @@ function validBackup(o){
     && o.customers.every(c => c && c.id && typeof c.name === 'string')
     && o.txns.every(t => t && t.id && t.cid && ['act','debt','pay'].includes(t.kind) && typeof t.amount === 'number' && /^\d{4}-\d\d-\d\d$/.test(t.date));
 }
+let pendingRestore = null;
 async function restoreFrom(file){
   let o;
   try{ o = JSON.parse(await file.text()); }catch{ return toast('الملف مو نسخة احتياطية صحيحة', true); }
   if(!validBackup(o)) return toast('الملف مو نسخة احتياطية من الدفتر', true);
   const body = `<div class="card"><div class="kv"><span>تاريخ النسخة</span><b class="num">${o.exportedAt ? fts(o.exportedAt) : '—'}</b></div>
-      <div class="kv"><span>الزبائن</span><b class="num">${o.customers.length}</b></div><div class="kv"><span>الحركات</span><b class="num">${o.txns.length}</b></div>
+      <div class="kv"><span>الزبائن</span><b class="num">${o.customers.filter(c => !c.deleted).length}</b></div><div class="kv"><span>الحركات</span><b class="num">${o.txns.length}</b></div>
       <div class="kv"><span>المصاريف</span><b class="num">${o.expenses.length}</b></div></div>
-    <div class="banner warn" style="margin:14px 0">راح تنمسح البيانات الحالية (${S.customers.length} زبون، ${S.txns.length} حركة) وتحل محلها هذي النسخة. البيانات الحالية تنحفظ بشكل مؤقت وتكدر ترجعها.</div>
+    <div class="banner warn" style="margin:14px 0">راح تنمسح البيانات الحالية (${active().length} زبون، ${S.txns.length} حركة) وتحل محلها هذي النسخة. البيانات الحالية تنحفظ بشكل مؤقت وتكدر ترجعها.</div>
     <button class="btn" data-act="confirmRestore">استعادة</button>`;
   pendingRestore = o;
   openModal('استعادة نسخة', body);
 }
-let pendingRestore = null;
 async function confirmRestore(){
   const o = pendingRestore; if(!o) return;
   await kvSet('state_before_restore', JSON.stringify(S));
   const lb = S.meta.lastBackup;
-  S = {...emptyState(), ...o}; delete S.exportedAt;
-  S.draft = S.draft && Array.isArray(S.draft.batch) ? S.draft : {batch:[]};
-  S.meta = {...emptyState().meta, ...(o.meta || {})};
+  S = fixState(o); delete S.exportedAt;
   S.meta.lastBackup = o.exportedAt || S.meta.lastBackup || lb;
   pendingRestore = null; closeModal(); UI.view = null; UI.tab = 'customers';
   await commit({type:'استعادة نسخة', text:`${o.customers.length} زبون، ${o.txns.length} حركة، ${o.expenses.length} مصروف${o.exportedAt ? ' — نسخة ' + fts(o.exportedAt) : ''}`});
@@ -680,44 +858,60 @@ async function confirmRestore(){
 async function undoRestore(){
   const prev = await kvGet('state_before_restore'); if(!prev) return;
   const o = JSON.parse(prev); const cur = JSON.stringify(S);
-  S = o; await kvSet('state_before_restore', cur);
+  S = fixState(o); await kvSet('state_before_restore', cur);
   await commit({type:'تراجع عن استعادة', text:'رجعت البيانات اللي كانت قبل آخر استعادة'});
   toast('رجعت البيانات السابقة');
 }
 
 /* ---------------- events ---------------- */
+function goBack(){ UI.view = null; render(); requestAnimationFrame(() => scrollTo(0, UI.listScroll || 0)); }
 document.addEventListener('click', async ev => {
   const el = ev.target.closest('[data-act]'); if(!el) return;
   const a = el.dataset.act, id = el.dataset.id;
   try{
     switch(a){
+      case 'noop': return;
+      case 'dlgCancel': if(el.classList.contains('dlg-back') && Date.now() - dlgOpenedAt < 500) return; closeDlg(); return;
+      case 'dlgOk': { if(Date.now() - dlgOpenedAt < 450) return; const f = dlgOk; closeDlg(); if(f) await f(); return; }
       case 'tab': if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); UI.tab = el.dataset.k; UI.view = null; closeModal(); render(); scrollTo(0,0); break;
       case 'filter': UI.filter = el.dataset.k; render(); break;
-      case 'openCustomer': UI.view = {name:'customer', id}; history.pushState({v:1}, ''); render(); scrollTo(0,0); break;
-      case 'back': if(history.state && history.state.v){ history.back(); } else { UI.view = null; render(); } break;
+      case 'openCustomer': UI.listScroll = window.scrollY; UI.view = {name:'customer', id}; history.pushState({v:1}, ''); render(); scrollTo(0,0); break;
+      case 'back': if(history.state && history.state.v){ history.back(); } else goBack(); break;
       case 'addCustomer': customerForm(null); break;
       case 'editCustomer': customerForm(cust(id)); break;
       case 'delCustomer': {
-        if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية للحذف'; return; }
-        const c = cust(id); S.customers = S.customers.filter(x => x.id !== id); closeModal(); UI.view = null;
-        await commit({type:'حذف زبون', text:c.name}); toast('انحذف'); break; }
+        const c = cust(id);
+        confirmBox('حذف الزبون؟', `راح يختفي <b>${esc(c.name)}</b> من القوائم. حركاته القديمة تبقى محسوبة بكشف الأشهر، وتكدر ترجّعه من فلتر "المحذوفين".`, 'حذف', async () => {
+          c.deleted = true; c.deletedAt = nowISO(); closeModal(); UI.view = null;
+          await commit({type:'حذف زبون', cid:c.id, text:c.name}); goBack(); toast('انحذف الزبون');
+        });
+        break; }
+      case 'restoreCustomer': {
+        const c = cust(id);
+        if(active().some(x => norm(x.name) === norm(c.name))) return toast('أكو زبون فعّال بنفس الاسم. غيّر اسم واحد منهم أول.', true);
+        c.deleted = false; delete c.deletedAt;
+        await commit({type:'استرجاع زبون', cid:c.id, text:c.name}); toast('رجع الزبون');
+        break; }
       case 'txForm': txForm(el.dataset.kind, id); break;
       case 'editTx': { const t = S.txns.find(x => x.id === id); if(t) txForm(t.kind, t.cid, t); break; }
       case 'delTx': {
-        if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية للحذف'; return; }
-        const t = S.txns.find(x => x.id === id), c = cust(t.cid); S.txns = S.txns.filter(x => x.id !== id); closeModal();
-        await commit({type:'حذف حركة', cid:t.cid, text:`${c ? c.name : ''}: ${KIND[t.kind]} ${fn(t.amount)} بتاريخ ${fd(t.date)}${t.note ? ' — ' + t.note : ''}`}); toast('انحذفت الحركة'); break; }
+        const t = S.txns.find(x => x.id === id), c = cust(t.cid);
+        confirmBox('حذف الحركة؟', `${KIND[t.kind]} <b class="num">${fn(t.amount)}</b> بتاريخ ${fd(t.date)} — ${esc(c ? c.name : '')}`, 'حذف', async () => {
+          S.txns = S.txns.filter(x => x.id !== id); closeModal();
+          await commit({type:'حذف حركة', cid:t.cid, text:`${c ? c.name : ''}: ${KIND[t.kind]} ${fn(t.amount)} بتاريخ ${fd(t.date)}${t.note ? ' — ' + t.note : ''}`}); toast('انحذفت الحركة');
+        });
+        break; }
       case 'quickAmt': $('#f_amt').value = el.dataset.v; break;
       case 'seg': { const seg = el.parentElement; seg.dataset.val = el.dataset.v; [...seg.children].forEach(b => b.classList.toggle('on', b === el)); if(seg.id === 'b_place') UI.batch.place = el.dataset.v; break; }
       case 'closeModal': closeModal(); pendingRestore = null; break;
       case 'modalSave': if(modalSave) await modalSave(); break;
       case 'waCustomer': { const c = cust(id), s = stats().get(id); waPrompt(c, msgFor(s.st === 'soon' || s.st === 'expired' ? 'expiry' : 'general', c, s)); break; }
-      case 'waExpiry': { ev.stopPropagation(); const c = cust(id), s = stats().get(id); waPrompt(c, msgFor('expiry', c, s)); break; }
+      case 'waExpiry': { const c = cust(id), s = stats().get(id); waPrompt(c, msgFor('expiry', c, s)); break; }
       case 'sendWa': openWhatsApp(cust(id), fv('f_msg')); closeModal(); break;
       case 'batchPick': { const c = cust(id); $('#b_name').value = c.name; batchPick = c.id; $('#b_sug').innerHTML = ''; $('#b_amt').focus(); break; }
       case 'batchAdd': {
         const date = fv('b_date'), amt = num(fv('b_amt')), by = fv('b_by').trim() || 'عز';
-        if(!batchPick){ const ex = S.customers.find(c => norm(c.name) === norm(fv('b_name'))); if(ex) batchPick = ex.id; }
+        if(!batchPick){ const ex = active().find(c => norm(c.name) === norm(fv('b_name'))); if(ex) batchPick = ex.id; }
         if(!date) return showErr('اختار التاريخ');
         if(!batchPick) return showErr('اختار الاسم من القائمة');
         if(amt === null || Number.isNaN(amt) || amt <= 0) return showErr('اكتب مبلغ صحيح');
@@ -735,12 +929,27 @@ document.addEventListener('click', async ev => {
         }
         const n = items.length; S.draft.batch = [];
         await commit(logs); toast(`انحفظت ${n} تسديدات ✓`); break; }
+      case 'month': UI.month = shiftMonth(UI.month, Number(el.dataset.n)); render(); break;
+      case 'openingForm': openingForm(); break;
+      case 'addTopup': topupForm(null); break;
+      case 'editTopup': topupForm(S.wallet.topups.find(x => x.id === id)); break;
+      case 'delTopup': {
+        const t = S.wallet.topups.find(x => x.id === id);
+        confirmBox('حذف الشحن؟', `شحن <b class="num">${fn(t.amount)}</b> بتاريخ ${fd(t.date)}`, 'حذف', async () => {
+          S.wallet.topups = S.wallet.topups.filter(x => x.id !== id); closeModal();
+          await commit({type:'حذف شحن', text:`${fn(t.amount)} بتاريخ ${fd(t.date)}${t.note ? ' — ' + t.note : ''}`}); toast('انحذف');
+        });
+        break; }
+      case 'costForm': costForm(); break;
       case 'addExp': expForm(null); break;
       case 'editExp': expForm(S.expenses.find(x => x.id === id)); break;
       case 'delExp': {
-        if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية للحذف'; return; }
-        const e = S.expenses.find(x => x.id === id); S.expenses = S.expenses.filter(x => x.id !== id); closeModal();
-        await commit({type:'حذف مصروف', text:`${fn(e.amount)} بتاريخ ${fd(e.date)}${e.reason ? ' — ' + e.reason : ''}`}); toast('انحذف'); break; }
+        const e = S.expenses.find(x => x.id === id);
+        confirmBox('حذف المصروف؟', `<b class="num">${fn(e.amount)}</b> بتاريخ ${fd(e.date)}${e.reason ? ' — ' + esc(e.reason) : ''}`, 'حذف', async () => {
+          S.expenses = S.expenses.filter(x => x.id !== id); closeModal();
+          await commit({type:'حذف مصروف', text:`${fn(e.amount)} بتاريخ ${fd(e.date)}${e.reason ? ' — ' + e.reason : ''}`}); toast('انحذف');
+        });
+        break; }
       case 'logMore': UI.logLimit += 150; render(); break;
       case 'exportBackup': await exportBackup(); break;
       case 'pickRestore': { const f = $('#restoreFile'); f.value = ''; f.click(); break; }
@@ -763,7 +972,7 @@ document.addEventListener('focusout', ev => { if(/^(INPUT|TEXTAREA|SELECT)$/.tes
 document.addEventListener('change', ev => {
   if(ev.target.id === 'restoreFile' && ev.target.files[0]) restoreFrom(ev.target.files[0]);
 });
-window.addEventListener('popstate', () => { if($('#layer').innerHTML){ closeModal(); return; } if(UI.view){ UI.view = null; render(); } });
+window.addEventListener('popstate', () => { if($('#dlg').innerHTML){ closeDlg(); return; } if($('#layer').innerHTML){ closeModal(); return; } if(UI.view) goBack(); });
 
 /* ---------------- boot ---------------- */
 (async function boot(){
@@ -771,7 +980,7 @@ window.addEventListener('popstate', () => { if($('#layer').innerHTML){ closeModa
   catch(e){ useLS = true; console.warn('IndexedDB unavailable, using localStorage', e); }
   try{
     const raw = await kvGet('state');
-    if(raw){ const o = JSON.parse(raw); S = {...emptyState(), ...o}; S.draft = S.draft && Array.isArray(S.draft.batch) ? S.draft : {batch:[]}; }
+    if(raw) S = fixState(JSON.parse(raw));
   }catch(e){ console.error(e); toast('ما كدرت أقرا البيانات المحفوظة', true); }
   render();
   try{ if(navigator.storage && navigator.storage.persist) await navigator.storage.persist(); }catch{}
