@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="الدفتر">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<title>الدفتر</title>
+<style>
+:root{
+  --bg:#f4f5f7;--card:#ffffff;--text:#14181f;--muted:#6b7280;--line:#e4e6ea;
+  --accent:#0f766e;--accent-soft:#e3f3f1;--on-accent:#ffffff;
+  --debt:#c0262d;--debt-soft:#fdecec;--pay:#15803d;--pay-soft:#e8f6ec;
+  --warn:#b45309;--warn-soft:#fdf3e1;--radius:14px;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0e1013;--card:#181b20;--text:#e9ebee;--muted:#9aa1ab;--line:#2a2f37;
+  --accent:#2bb3a5;--accent-soft:#163331;--on-accent:#06201d;
+  --debt:#f2777b;--debt-soft:#3a1d1f;--pay:#5ccf85;--pay-soft:#16301f;
+  --warn:#f0b452;--warn-soft:#3a2c14;--shadow:none;}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:-apple-system,"SF Arabic","Segoe UI",Tahoma,"Noto Sans Arabic",sans-serif;font-size:16px;line-height:1.45;
+  -webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+/* layout */
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 16px 8px;
+  display:flex;align-items:center;gap:10px;min-height:52px}
+header.top h1{font-size:22px;margin:0;flex:1;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{border:0;background:var(--card);box-shadow:var(--shadow);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;flex:none}
+.icon-btn svg{width:22px;height:22px}
+main{padding:0 16px calc(96px + env(safe-area-inset-bottom))}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:6;background:var(--card);border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{border:0;background:none;padding:8px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted)}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button.on{color:var(--accent);font-weight:700}
+
+/* cards & lists */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+.stack>*+*{margin-top:12px}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.summary .card{padding:12px 14px}
+.label{font-size:13px;color:var(--muted)}
+.big{font-size:26px;font-weight:800}
+.debt{color:var(--debt)}.pay{color:var(--pay)}.warn{color:var(--warn)}.muted{color:var(--muted)}
+.banner{border-radius:12px;padding:11px 13px;font-size:14px;display:flex;align-items:center;gap:10px}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.info{background:var(--accent-soft);color:var(--accent)}
+.banner .grow{flex:1}
+.banner button{border:0;border-radius:10px;padding:7px 11px;background:currentColor;font-weight:700;font-size:13px}
+.banner button span{color:var(--card)}
+.search{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:11px 14px;font-size:17px;outline:none}
+.search:focus{border-color:var(--accent)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 13px;font-size:14px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.list{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:right}
+.row:last-child{border-bottom:0}
+.row .main{flex:1;min-width:0}
+.row .title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sub{font-size:13px;color:var(--muted);margin-top:1px}
+.row .amt{font-weight:800;font-size:17px;text-align:left;flex:none}
+.row .amt small{display:block;font-weight:500;font-size:11.5px;color:var(--muted);text-align:left}
+.tag{display:inline-block;font-size:11.5px;border-radius:6px;padding:1px 6px;font-weight:700;vertical-align:1px}
+.tag.debt{background:var(--debt-soft)}.tag.pay{background:var(--pay-soft)}.tag.warn{background:var(--warn-soft)}
+.tag.acc{background:var(--accent-soft);color:var(--accent)}
+.wa-mini{flex:none;border:0;background:var(--pay-soft);color:var(--pay);border-radius:10px;width:38px;height:38px;display:grid;place-items:center}
+.wa-mini svg{width:20px;height:20px}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+.fab{position:fixed;left:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:7;border:0;border-radius:16px;
+  background:var(--accent);color:var(--on-accent);font-weight:800;padding:14px 18px;box-shadow:0 6px 18px rgba(15,118,110,.35);display:flex;gap:6px;align-items:center}
+.fab svg{width:20px;height:20px}
+h2.sec{font-size:15px;color:var(--muted);margin:18px 2px 8px;font-weight:700}
+
+/* customer page */
+.balance{text-align:center;padding:18px 14px}
+.balance .big{font-size:38px}
+.balance .state{margin-top:6px;font-size:14px}
+.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.act{border:0;border-radius:14px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;font-size:13.5px}
+.act svg{width:24px;height:24px}
+.act.charge{background:var(--debt-soft);color:var(--debt)}
+.act.payb{background:var(--pay-soft);color:var(--pay)}
+.act.other{background:var(--warn-soft);color:var(--warn)}
+.act.wa{background:var(--accent-soft);color:var(--accent)}
+.tx .sub span+span::before{content:" · "}
+.tx .note{font-size:13px;margin-top:2px}
+.opening-row{background:var(--accent-soft)}
+
+/* modal page */
+.modal{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.modal header{padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);background:var(--card)}
+.modal header h3{flex:1;margin:0;font-size:18px;text-align:center}
+.modal .body{flex:1;overflow:auto;padding:16px 16px calc(40px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.btn{border:0;border-radius:12px;padding:13px 16px;font-weight:800;font-size:16px;background:var(--accent);color:var(--on-accent);width:100%}
+.btn.sm{width:auto;padding:8px 14px;font-size:15px}
+.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line)}
+.btn.danger{background:var(--debt-soft);color:var(--debt)}
+.btn.green{background:var(--pay);color:#fff}
+.btn:disabled{opacity:.45}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:14px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 13px;font-size:17px;outline:none}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{min-height:120px;resize:vertical;line-height:1.6}
+.field .hint{font-size:13px;color:var(--muted);margin-top:5px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{border:0;background:none;border-radius:9px;padding:9px 6px;font-weight:700;font-size:15px;color:var(--muted)}
+.seg button.on{background:var(--accent);color:var(--on-accent)}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.quick button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px}
+.check{display:flex;align-items:center;gap:10px;font-size:16px;padding:6px 0}
+.check input{width:22px;height:22px;accent-color:var(--accent)}
+.err{color:var(--debt);font-size:14px;margin:-6px 0 12px;min-height:0}
+.suggest{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:6px;overflow:hidden}
+.suggest button{display:block;width:100%;text-align:right;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 13px;font-size:16px}
+.suggest button:last-child{border-bottom:0}
+.batch-grid{display:grid;grid-template-columns:1fr 92px;gap:8px;align-items:start}
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 62px);z-index:40;
+  background:#1f2937;color:#fff;padding:10px 16px;border-radius:12px;font-size:15px;max-width:88vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.toast.bad{background:var(--debt)}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.kv:last-child{border-bottom:0}
+.log-time{font-size:12px;color:var(--muted)}
+.more{display:block;margin:12px auto 0}
+.sync{font-size:12px;border-radius:999px;padding:4px 10px;background:var(--card);color:var(--muted);flex:none;box-shadow:var(--shadow);white-space:nowrap}
+.sync.off{background:var(--warn-soft);color:var(--warn)}
+.login{max-width:420px;margin:calc(env(safe-area-inset-top) + 40px) auto 0}
+.login img{width:76px;height:76px;border-radius:18px;display:block;margin:0 auto 10px}
+.center{text-align:center}
+.login h2{margin:0 0 4px}
+</style>
+</head>
+<body>
+<header class="top" id="top"></header>
+<main id="main"></main>
+<nav class="tabs" id="tabs"></nav>
+<div id="layer"></div>
+<script src="config.js"></script>
+<script>
+// إذا ما انحمل التطبيق (مثلاً أول مرة بدون نت) نعرض رسالة بدل صفحة فارغة
+setTimeout(function(){ if(!window.__appStarted){ var m=document.getElementById('main'); if(m) m.innerHTML='<div class="card empty" style="margin-top:40px">ما كدر يحمّل التطبيق.<br>تأكد من النت وافتحه مرة ثانية.</div>'; } }, 9000);
+</script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, onSnapshot, writeBatch, deleteField } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const APP_VERSION = '2.0';
+const SUB_DAYS = 30;
+const BACKUP_REMIND_DAYS = 14;
+
+/* ---------------- icons ---------------- */
+const I = {
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 8h7M9 12h5"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M16 13h2"/><path d="M2 10h20"/><path d="M6 6V4h12v2"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
+  note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg>',
+  wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.2c-.1-.2-.3-.2-.5-.3z"/></svg>'
+};
+
+/* ---------------- helpers ---------------- */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+const pad = n => String(n).padStart(2, '0');
+function today(){ const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function nowISO(){ return new Date().toISOString(); }
+function parseD(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function addDays(s, n){ const d = parseD(s); d.setDate(d.getDate()+n); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function diffDays(a, b){ return Math.round((parseD(a) - parseD(b)) / 86400000); }
+function fd(s){ if(!s) return ''; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; }
+function fts(iso){ const d = new Date(iso); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function r2(n){ return Math.round(n * 100) / 100; }
+function fn(n){ n = r2(n); return n.toLocaleString('en-US', {maximumFractionDigits: 2}); }
+function digits(s){ return String(s ?? '').replace(/[٠-٩]/g, c => '٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[۰-۹]/g, c => '۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٫,]/g, '.').trim(); }
+function num(s){ const v = digits(s); if(v === '') return null; const n = Number(v); return Number.isFinite(n) ? n : NaN; }
+function norm(s){ return String(s ?? '').trim().replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase(); }
+const plain = v => JSON.parse(JSON.stringify(v));
+const month = s => String(s).slice(0, 7);
+
+/* ---------------- state ---------------- */
+function emptyState(){ return {app:'dafter', version:2, customers:[], txns:[], expenses:[], log:[], draft:{batch:[]}, meta:{createdAt:null, lastBackup:null}}; }
+let S = emptyState();
+const UI = {tab:'customers', view:null, filter:'all', q:'', logLimit:150, batch:{date:today(), place:'قيس', by:'عز'}, email:'', legacy:null};
+function cust(id){ return S.customers.find(c => c.id === id); }
+
+/* ---------------- firebase ---------------- */
+const CFG = window.FIREBASE_CONFIG;
+let auth = null, db = null, userId = null, unsubs = [];
+let raw = {customers:{}, buckets:{}, logs:{}, meta:{}};
+let ready = {c:false, b:false, l:false, m:false};
+let pend = {c:false, b:false, l:false, m:false};
+const REF = {
+  cust: () => doc(db, 'users', userId, 'data', 'customers'),
+  meta: () => doc(db, 'users', userId, 'data', 'meta'),
+  bucket: b => doc(db, 'users', userId, 'buckets', b),
+  logs: m => doc(db, 'users', userId, 'logs', m),
+};
+function errText(e){
+  const c = e && e.code || '';
+  if(c.includes('permission-denied')) return 'ما عندك صلاحية (تأكد من قواعد Firestore)';
+  if(c.includes('unavailable')) return 'ماكو اتصال';
+  return (e && (e.code || e.message)) || String(e);
+}
+function onErr(e){ console.error(e); toast('⚠️ مشكلة بالحفظ بالسحابة: ' + errText(e), true); }
+
+function startUser(user){
+  stopUser();
+  userId = user.uid; UI.email = user.email || ''; UI.tab = 'customers'; UI.view = null; UI.q = ''; UI.filter = 'all';
+  raw = {customers:{}, buckets:{}, logs:{}, meta:{}};
+  ready = {c:false, b:false, l:false, m:false};
+  const opt = {includeMetadataChanges:true};
+  const err = e => { console.error(e); toast('⚠️ مشكلة بالمزامنة: ' + errText(e), true); };
+  unsubs.push(onSnapshot(REF.cust(), opt, s => { raw.customers = s.exists() ? (s.data().c || {}) : {}; pend.c = s.metadata.hasPendingWrites; ready.c = true; rebuild(); }, err));
+  unsubs.push(onSnapshot(REF.meta(), opt, s => { raw.meta = s.exists() ? s.data() : {}; pend.m = s.metadata.hasPendingWrites; ready.m = true; rebuild(); }, err));
+  unsubs.push(onSnapshot(collection(db, 'users', userId, 'buckets'), opt, qs => { const o = {}; qs.forEach(d => { o[d.id] = d.data(); }); raw.buckets = o; pend.b = qs.metadata.hasPendingWrites; ready.b = true; rebuild(); }, err));
+  unsubs.push(onSnapshot(collection(db, 'users', userId, 'logs'), opt, qs => { const o = {}; qs.forEach(d => { o[d.id] = d.data(); }); raw.logs = o; pend.l = qs.metadata.hasPendingWrites; ready.l = true; rebuild(); }, err));
+  render();
+}
+function stopUser(){ unsubs.forEach(u => { try{ u(); }catch{} }); unsubs = []; userId = null; S = emptyState(); UI.view = null; UI.legacy = null; }
+
+let legacyChecked = false;
+function rebuild(){
+  S.customers = Object.values(raw.customers || {}).filter(c => c && c.id);
+  const tx = [], ex = [];
+  for(const d of Object.values(raw.buckets)){
+    for(const t of Object.values(d.t || {})) if(t && t.id) tx.push(t);
+    for(const e of Object.values(d.e || {})) if(e && e.id) ex.push(e);
+  }
+  S.txns = tx; S.expenses = ex;
+  const lg = [];
+  for(const d of Object.values(raw.logs)) for(const l of Object.values(d.l || {})) if(l && l.id) lg.push(l);
+  lg.sort((a, b) => a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0);
+  S.log = lg;
+  S.meta = {createdAt: raw.meta.createdAt || null, lastBackup: raw.meta.lastBackup || null};
+  S.draft = {batch: Array.isArray(raw.meta.draftBatch) ? raw.meta.draftBatch : []};
+  if(ready.c && ready.b && !legacyChecked){ legacyChecked = true; checkLegacy(); }
+  scheduleRender();
+}
+
+/* writes: optimistic local apply + one batched write per change */
+function upsert(arr, v){ const i = arr.findIndex(x => x.id === v.id); if(i >= 0) arr[i] = v; else arr.push(v); }
+function applyLocal(op){
+  switch(op.k){
+    case 'cust': upsert(S.customers, op.v); break;
+    case 'custDel': S.customers = S.customers.filter(x => x.id !== op.id); break;
+    case 'tx': upsert(S.txns, op.v); break;
+    case 'txDel': S.txns = S.txns.filter(x => x.id !== op.v.id); break;
+    case 'exp': upsert(S.expenses, op.v); break;
+    case 'expDel': S.expenses = S.expenses.filter(x => x.id !== op.v.id); break;
+    case 'meta': if('draftBatch' in op.v) S.draft.batch = op.v.draftBatch; if('lastBackup' in op.v) S.meta.lastBackup = op.v.lastBackup; break;
+  }
+}
+const isPlainObj = v => v !== null && typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype;
+function toBatch(ops){
+  const docs = new Map(); // path -> {ref, data}
+  const put = (ref, data) => {
+    const cur = docs.get(ref.path);
+    if(!cur){ docs.set(ref.path, {ref, data}); return; }
+    for(const [k, v] of Object.entries(data)) cur.data[k] = (isPlainObj(cur.data[k]) && isPlainObj(v)) ? {...cur.data[k], ...v} : v;
+  };
+  for(const op of ops){
+    switch(op.k){
+      case 'cust': put(REF.cust(), {c: {[op.v.id]: plain(op.v)}}); break;
+      case 'custDel': put(REF.cust(), {c: {[op.id]: deleteField()}}); break;
+      case 'tx': put(REF.bucket(op.v.b), {t: {[op.v.id]: plain(op.v)}}); break;
+      case 'txDel': put(REF.bucket(op.v.b), {t: {[op.v.id]: deleteField()}}); break;
+      case 'exp': put(REF.bucket(op.v.b), {e: {[op.v.id]: plain(op.v)}}); break;
+      case 'expDel': put(REF.bucket(op.v.b), {e: {[op.v.id]: deleteField()}}); break;
+      case 'meta': put(REF.meta(), plain(op.v)); break;
+      case 'log': put(REF.logs(month(op.v.ts)), {l: {[op.v.id]: plain(op.v)}}); break;
+    }
+  }
+  const b = writeBatch(db);
+  for(const {ref, data} of docs.values()) b.set(ref, data, {merge:true});
+  return b;
+}
+function commit(ops, logs){
+  ops = [].concat(ops || []);
+  const L = [].concat(logs || []).map(l => ({id:uid(), ts:nowISO(), ...l}));
+  for(const op of ops) applyLocal(op);
+  for(const l of L){ S.log.push(l); ops.push({k:'log', v:l}); }
+  render();
+  if(ops.length) toBatch(ops).commit().catch(onErr);
+}
+function normalize(o){
+  const n = {customers:(o.customers || []).map(plain), txns:(o.txns || []).map(plain), expenses:(o.expenses || []).map(plain), log:(o.log || []).map(plain)};
+  for(const t of n.txns) t.b = t.b || month(t.createdAt || t.date);
+  for(const e of n.expenses) e.b = e.b || month(e.createdAt || e.date);
+  for(const l of n.log){ l.id = l.id || uid(); l.ts = l.ts || nowISO(); }
+  return n;
+}
+function replaceAll(o, lastBackup){
+  const n = normalize(o);
+  const custMap = {}; n.customers.forEach(c => { custMap[c.id] = c; });
+  const buckets = {}, B = k => (buckets[k] = buckets[k] || {t:{}, e:{}});
+  n.txns.forEach(t => { B(t.b).t[t.id] = t; }); n.expenses.forEach(e => { B(e.b).e[e.id] = e; });
+  const logs = {}; n.log.forEach(l => { const m = month(l.ts); (logs[m] = logs[m] || {l:{}}).l[l.id] = l; });
+  const draft = (o.draft && Array.isArray(o.draft.batch)) ? plain(o.draft.batch) : [];
+  const writes = [['set', REF.cust(), {c:custMap}], ['set', REF.meta(), {createdAt: raw.meta.createdAt || nowISO(), lastBackup: lastBackup || null, draftBatch: draft}]];
+  for(const k of Object.keys(raw.buckets)) if(!buckets[k]) writes.push(['del', REF.bucket(k)]);
+  for(const k of Object.keys(raw.logs)) if(!logs[k]) writes.push(['del', REF.logs(k)]);
+  for(const [k, v] of Object.entries(buckets)) writes.push(['set', REF.bucket(k), v]);
+  for(const [k, v] of Object.entries(logs)) writes.push(['set', REF.logs(k), v]);
+  for(let i = 0; i < writes.length; i += 400){
+    const b = writeBatch(db);
+    for(const [t, ref, v] of writes.slice(i, i + 400)) t === 'del' ? b.delete(ref) : b.set(ref, v);
+    b.commit().catch(onErr);
+  }
+  S.customers = n.customers; S.txns = n.txns; S.expenses = n.expenses; S.log = n.log;
+  S.meta.lastBackup = lastBackup || null; S.draft = {batch:draft};
+}
+
+/* old on-device version (v1) — offer to move its data to the account */
+function legacyGet(){
+  return new Promise(res => {
+    try{
+      const r = indexedDB.open('dafter');
+      r.onupgradeneeded = () => { try{ r.transaction.abort(); }catch{} };
+      r.onsuccess = () => {
+        const d = r.result;
+        if(!d.objectStoreNames.contains('kv')){ d.close(); return res(null); }
+        const q = d.transaction('kv', 'readonly').objectStore('kv').get('state');
+        q.onsuccess = () => { d.close(); res(q.result || null); };
+        q.onerror = () => { d.close(); res(null); };
+      };
+      r.onerror = () => res(null);
+    }catch{ res(null); }
+  });
+}
+async function checkLegacy(){
+  if(S.customers.length) return;
+  const rawL = await legacyGet(); if(!rawL) return;
+  try{ const o = JSON.parse(rawL); if(o && Array.isArray(o.customers) && o.customers.length){ UI.legacy = o; scheduleRender(); } }catch{}
+}
+
+/* ---------------- computations ---------------- */
+const KIND = {act:'تفعيل', debt:'دين', pay:'تسديد'};
+function stats(){
+  const t0 = today(), m = new Map();
+  for(const c of S.customers) m.set(c.id, {bal: c.opening || 0, lastAct:null, lastPay:null});
+  for(const t of S.txns){
+    const s = m.get(t.cid); if(!s) continue;
+    if(t.kind === 'pay'){ s.bal -= t.amount; if(!s.lastPay || t.date > s.lastPay) s.lastPay = t.date; }
+    else { s.bal += t.amount; if(t.kind === 'act' && (!s.lastAct || t.date > s.lastAct)) s.lastAct = t.date; }
+  }
+  for(const s of m.values()){
+    s.bal = r2(s.bal);
+    if(s.lastAct){ s.end = addDays(s.lastAct, SUB_DAYS); s.left = diffDays(s.end, t0); s.st = s.left < 0 ? 'expired' : (s.left <= 3 ? 'soon' : 'ok'); }
+    else { s.end = null; s.left = null; s.st = 'none'; }
+  }
+  return m;
+}
+function stateText(s){
+  if(s.st === 'none') return {t:'ما مفعّل بالتطبيق بعد', c:'muted'};
+  if(s.st === 'expired') return {t:`منتهي من ${-s.left} يوم (${fd(s.end)})`, c:'debt'};
+  if(s.st === 'soon') return {t: s.left === 0 ? 'ينتهي اليوم' : s.left === 1 ? 'ينتهي باچر' : `ينتهي بعد ${s.left} أيام`, c:'warn'};
+  return {t:`فعّال لغاية ${fd(s.end)}`, c:'pay'};
+}
+function balText(b){ return b > 0 ? {t:fn(b), c:'debt', s:'مطلوب'} : b < 0 ? {t:fn(-b), c:'pay', s:'رصيد مقدّم'} : {t:'0', c:'muted', s:'مسدّد'}; }
+function custTx(cid){ return S.txns.filter(t => t.cid === cid).sort((a,b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (a.createdAt < b.createdAt ? 1 : -1)); }
+
+/* ---------------- whatsapp ---------------- */
+function waNumber(p){
+  let d = digits(p).replace(/\D/g, '');
+  if(!d) return '';
+  if(d.startsWith('00')) d = d.slice(2);
+  if(d.startsWith('0')) d = '964' + d.slice(1);
+  else if(d.length === 10 && d.startsWith('7')) d = '964' + d;
+  return d;
+}
+function balLine(b){ return b > 0 ? `المبلغ المطلوب الكلي: ${fn(b)} ألف دينار.` : b < 0 ? `عندك رصيد مقدّم ${fn(-b)} ألف دينار.` : 'حسابك مسدّد بالكامل، شكراً.'; }
+function msgFor(type, c, s, extra){
+  const n = c.name;
+  if(type === 'act') return `مرحباً ${n}،\nتم تفعيل اشتراكك بتاريخ ${fd(extra.date)} وينتهي بتاريخ ${fd(addDays(extra.date, SUB_DAYS))}.\n${balLine(s.bal)}`;
+  if(type === 'expiry' && s.end) return s.left < 0
+    ? `مرحباً ${n}،\nاشتراكك انتهى بتاريخ ${fd(s.end)}.\n${balLine(s.bal)}`
+    : `مرحباً ${n}،\nاشتراكك ينتهي بتاريخ ${fd(s.end)}.\n${balLine(s.bal)}`;
+  return `مرحباً ${n}،\nكشف حسابك لغاية ${fd(today())}:\n${balLine(s.bal)}`;
+}
+function openWhatsApp(c, text){
+  const n = waNumber(c.phone);
+  const url = (n ? `https://wa.me/${n}` : 'https://wa.me/') + '?text=' + encodeURIComponent(text);
+  const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ---------------- toast ---------------- */
+let toastT = null;
+function toast(msg, bad){
+  let el = $('#toast'); if(el) el.remove();
+  el = document.createElement('div'); el.id = 'toast'; el.className = 'toast' + (bad ? ' bad' : ''); el.textContent = msg;
+  document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), bad ? 5000 : 2600);
+}
+
+/* ---------------- render: shell ---------------- */
+const TABS = [['customers','الزبائن',I.users],['batch','الدفتر',I.book],['expenses','المصاريف',I.wallet],['log','السجل',I.list],['backup','الحساب',I.shield]];
+let renderPending = false;
+function typingInMain(){ const a = document.activeElement; return a && $('#main').contains(a) && /^(INPUT|TEXTAREA)$/.test(a.tagName); }
+function scheduleRender(){ if(typingInMain()){ renderPending = true; updateSync(); return; } render(); }
+document.addEventListener('focusout', () => { if(renderPending) setTimeout(() => { if(renderPending && !typingInMain()){ renderPending = false; render(); } }, 60); });
+
+function render(){
+  renderPending = false;
+  if(!CFG || !CFG.apiKey || String(CFG.apiKey).includes('PASTE')) return showSetup();
+  if(!userId) return;
+  $('#tabs').innerHTML = TABS.map(([k,l,ic]) => `<button data-act="tab" data-k="${k}" class="${UI.tab===k && !UI.view ? 'on' : ''}">${ic}<span>${l}</span></button>`).join('');
+  if(!(ready.c && ready.b && ready.m)){ setTop('الدفتر'); $('#main').innerHTML = '<div class="card empty" style="margin-top:20px">جاري التحميل…</div>'; return; }
+  const st = stats();
+  if(UI.view && UI.view.name === 'customer'){
+    const c = cust(UI.view.id); if(!c){ UI.view = null; return render(); }
+    renderCustomer(c, st.get(c.id)); return;
+  }
+  const f = {customers:renderCustomers, batch:renderBatch, expenses:renderExpenses, log:renderLog, backup:renderBackup}[UI.tab];
+  f(st);
+}
+function syncState(){ if(!navigator.onLine) return 'off'; if(Object.values(pend).some(Boolean)) return 'pending'; return 'ok'; }
+function updateSync(){
+  const el = $('#sync'); if(!el) return;
+  const s = syncState();
+  el.className = 'sync' + (s === 'off' ? ' off' : '');
+  el.textContent = s === 'off' ? 'بدون نت' : s === 'pending' ? 'يزامن…' : '☁︎ محفوظ';
+}
+window.addEventListener('online', updateSync); window.addEventListener('offline', updateSync);
+function setTop(title, back){
+  $('#top').innerHTML = (back ? `<button class="icon-btn" data-act="back" aria-label="رجوع">${I.back}</button>` : '') + `<h1>${esc(title)}</h1>` + (userId ? '<span class="sync" id="sync"></span>' : '');
+  updateSync();
+}
+function standalone(){ return window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches; }
+function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+
+function showSetup(){
+  $('#tabs').innerHTML = ''; $('#top').innerHTML = '';
+  $('#main').innerHTML = `<div class="login card"><img src="icon.png" alt=""><h2 class="center">الدفتر</h2>
+    <div class="label center">التطبيق مو مربوط بقاعدة البيانات بعد: ملف <b>config.js</b> ناقص أو ما بيه إعدادات Firebase.</div></div>`;
+}
+function showLogin(msg){
+  $('#tabs').innerHTML = ''; $('#top').innerHTML = '';
+  $('#main').innerHTML = `<div class="login card"><img src="icon.png" alt=""><h2 class="center">الدفتر</h2>
+    <div class="label center" style="margin-bottom:16px">سجّل دخول بحسابك</div>
+    <div class="err" id="ferr">${esc(msg || '')}</div>
+    <div class="field"><label>الإيميل</label><input id="l_email" type="email" inputmode="email" autocomplete="username" dir="ltr"></div>
+    <div class="field"><label>الرمز</label><input id="l_pass" type="password" autocomplete="current-password" dir="ltr"></div>
+    <button class="btn" data-act="login">دخول</button>
+    <button class="btn ghost" style="margin-top:10px" data-act="resetPass">نسيت الرمز</button></div>`;
+}
+function authErr(e){
+  const c = e && e.code || '';
+  if(/invalid-credential|wrong-password|user-not-found|invalid-email|missing-password/.test(c)) return 'الإيميل أو الرمز غلط';
+  if(/too-many-requests/.test(c)) return 'محاولات كثيرة، انتظر شوية وجرب';
+  if(/network-request-failed/.test(c)) return 'ماكو نت. أول تسجيل دخول يحتاج نت.';
+  return 'ما صار تسجيل الدخول: ' + (c || (e && e.message) || e);
+}
+
+/* ---------------- customers list ---------------- */
+function renderCustomers(st){
+  setTop('الزبائن');
+  const all = S.customers;
+  let total = 0, debtors = 0, noOpen = 0, soon = 0, expired = 0;
+  for(const c of all){ const s = st.get(c.id); if(s.bal > 0){ total += s.bal; debtors++; } if(c.opening == null) noOpen++; if(!c.stopped){ if(s.st==='soon') soon++; if(s.st==='expired') expired++; } }
+  const days = S.meta.lastBackup ? diffDays(today(), S.meta.lastBackup.slice(0,10)) : null;
+  let h = '<div class="stack">';
+  if(isIOS() && !standalone()) h += `<div class="banner info"><div class="grow">للتثبيت: زر المشاركة ⬆︎ ثم <b>إضافة إلى الشاشة الرئيسية</b>.</div></div>`;
+  if(UI.legacy && !all.length) h += `<div class="banner info"><div class="grow">لكيت على هذا الجهاز بيانات من النسخة السابقة (${UI.legacy.customers.length} زبون، ${(UI.legacy.txns || []).length} حركة). تنقلها لحسابك؟</div><button data-act="migrateLegacy"><span>انقلها</span></button></div>`;
+  if(all.length && (days === null || days >= BACKUP_REMIND_DAYS)) h += `<div class="banner warn"><div class="grow">${days === null ? 'ما سويت نسخة احتياطية بعد' : `صار ${days} يوم من آخر نسخة احتياطية`}</div><button data-act="tab" data-k="backup"><span>صدّر</span></button></div>`;
+  h += `<div class="summary"><div class="card"><div class="label">مجموع الديون</div><div class="big debt"><span class="num">${fn(total)}</span></div><div class="label">ألف دينار</div></div>
+        <div class="card"><div class="label">عليهم دين</div><div class="big"><span class="num">${debtors}</span></div><div class="label">من ${all.length} زبون</div></div></div>`;
+  if(!all.length){
+    h += `<div class="card empty">ما بيه زبائن بعد.<br>اضغط <b>+ زبون</b> أو استعيد ملف الزبائن من تبويب <b>الحساب</b>.</div></div>`;
+    $('#main').innerHTML = h + fab(); return;
+  }
+  h += `<input class="search" id="q" type="search" placeholder="ابحث بالاسم…" value="${esc(UI.q)}" autocomplete="off">`;
+  const chips = [['all','الكل'],['debt','عليهم دين'],['soon',`ينتهي قريباً${soon?' ('+soon+')':''}`],['expired',`منتهي${expired?' ('+expired+')':''}`]];
+  if(noOpen) chips.push(['noopen', `بدون دين افتتاحي (${noOpen})`]);
+  chips.push(['stopped','متوقفين']);
+  h += `<div class="chips">${chips.map(([k,l]) => `<button class="chip ${UI.filter===k?'on':''}" data-act="filter" data-k="${k}">${l}</button>`).join('')}</div>`;
+  h += `<div class="list" id="clist">${customerRows(st)}</div></div>`;
+  $('#main').innerHTML = h + fab();
+}
+function fab(){ return `<button class="fab" data-act="addCustomer">${I.plus}<span>زبون</span></button>`; }
+function customerRows(st){
+  const q = norm(UI.q), f = UI.filter;
+  let rows = S.customers.filter(c => {
+    const s = st.get(c.id);
+    if(q && !norm(c.name).includes(q)) return false;
+    if(f === 'stopped') return !!c.stopped;
+    if(q) return true;
+    if(c.stopped) return false;
+    if(f === 'debt') return s.bal > 0;
+    if(f === 'soon') return s.st === 'soon';
+    if(f === 'expired') return s.st === 'expired';
+    if(f === 'noopen') return c.opening == null;
+    return true;
+  });
+  if(f === 'soon' || f === 'expired') rows.sort((a,b) => st.get(a.id).left - st.get(b.id).left);
+  else rows.sort((a,b) => (st.get(b.id).bal - st.get(a.id).bal) || a.name.localeCompare(b.name, 'ar'));
+  if(!rows.length) return `<div class="empty">ماكو نتائج</div>`;
+  return rows.map(c => {
+    const s = st.get(c.id), b = balText(s.bal), x = stateText(s);
+    const wa = (f === 'soon' || f === 'expired') ? `<button class="wa-mini" data-act="waExpiry" data-id="${c.id}" aria-label="واتساب">${I.wa}</button>` : '';
+    return `<div class="row" data-act="openCustomer" data-id="${c.id}" role="button">
+      <div class="main"><div class="title">${esc(c.name)}${c.stopped ? ' <span class="tag acc">متوقف</span>' : ''}</div>
+      <div class="sub"><span class="${x.c}">${x.t}</span>${c.opening == null ? ' · <span class="warn">بدون دين افتتاحي</span>' : ''}</div></div>
+      ${wa}<div class="amt ${b.c}"><span class="num">${b.t}</span><small>${b.s}</small></div></div>`;
+  }).join('');
+}
+
+/* ---------------- customer page ---------------- */
+function renderCustomer(c, s){
+  setTop(c.name, true);
+  $('#top').insertAdjacentHTML('beforeend', `<button class="icon-btn" data-act="editCustomer" data-id="${c.id}" aria-label="تعديل">${I.edit}</button>`);
+  const b = balText(s.bal), x = stateText(s);
+  let h = '<div class="stack">';
+  h += `<div class="card balance"><div class="label">${b.s}</div><div class="big ${b.c}"><span class="num">${b.t}</span></div><div class="label">ألف دينار</div>
+        <div class="state ${x.c}">${x.t}</div>${c.phone ? `<div class="label" style="margin-top:4px"><a href="tel:${esc(digits(c.phone))}" style="color:inherit"><span class="num">${esc(c.phone)}</span></a></div>` : ''}</div>`;
+  if(c.opening == null) h += `<div class="banner warn"><div class="grow">ما محدد الدين الافتتاحي (الدين قبل ما تبدي بالتطبيق).</div><button data-act="editCustomer" data-id="${c.id}"><span>حدده</span></button></div>`;
+  h += `<div class="actions">
+      <button class="act charge" data-act="txForm" data-kind="act" data-id="${c.id}">${I.up}تفعيل</button>
+      <button class="act payb" data-act="txForm" data-kind="pay" data-id="${c.id}">${I.down}تسديد</button>
+      <button class="act other" data-act="txForm" data-kind="debt" data-id="${c.id}">${I.note}دين آخر</button>
+      <button class="act wa" data-act="waCustomer" data-id="${c.id}">${I.wa}واتساب</button></div>`;
+  const tx = custTx(c.id);
+  h += `<h2 class="sec">كشف الحساب (${tx.length} حركة)</h2><div class="list">`;
+  let bal = s.bal;
+  for(const t of tx){
+    const isPay = t.kind === 'pay';
+    const meta = [fd(t.date)];
+    if(isPay) meta.push(t.place === 'مباشر' ? 'مباشر' : 'عند قيس', 'استلم: ' + (t.by || 'عز'));
+    if(t.kind === 'act') meta.push('لغاية ' + fd(addDays(t.date, SUB_DAYS)));
+    h += `<button class="row tx" data-act="editTx" data-id="${t.id}">
+      <div class="main"><div class="title"><span class="tag ${isPay ? 'pay' : t.kind === 'act' ? 'debt' : 'warn'}">${KIND[t.kind]}</span></div>
+      <div class="sub">${meta.map(m => `<span>${esc(m)}</span>`).join('')}</div>${t.note ? `<div class="note">${esc(t.note)}</div>` : ''}</div>
+      <div class="amt ${isPay ? 'pay' : 'debt'}"><span class="num">${isPay ? '−' : '+'}${fn(t.amount)}</span><small>الرصيد بعدها <span class="num">${fn(bal)}</span></small></div></button>`;
+    bal = r2(bal - (isPay ? -t.amount : t.amount));
+  }
+  h += `<button class="row opening-row" data-act="editCustomer" data-id="${c.id}"><div class="main"><div class="title">الدين الافتتاحي</div>
+        <div class="sub">${c.opening == null ? 'ما محدد — اضغط لتحديده' : (c.openingDate ? 'بتاريخ ' + fd(c.openingDate) : 'الدين قبل التطبيق')}</div></div>
+        <div class="amt"><span class="num">${c.opening == null ? '—' : fn(c.opening)}</span></div></button></div>`;
+  if(c.note) h += `<div class="card"><div class="label">ملاحظة</div>${esc(c.note)}</div>`;
+  h += '</div>';
+  $('#main').innerHTML = h;
+}
+
+/* ---------------- modal ---------------- */
+let modalSave = null;
+function openModal(title, body, saveLabel, onSave){
+  modalSave = onSave || null;
+  $('#layer').innerHTML = `<div class="modal" role="dialog"><header><button class="icon-btn" data-act="closeModal" aria-label="إغلاق">${I.close}</button><h3>${esc(title)}</h3>
+    ${onSave ? `<button class="btn sm" data-act="modalSave">${esc(saveLabel || 'حفظ')}</button>` : '<span style="width:40px"></span>'}</header><div class="body">${body}</div></div>`;
+}
+function closeModal(){ $('#layer').innerHTML = ''; modalSave = null; }
+function fv(id){ const el = document.getElementById(id); return el ? el.value : ''; }
+function showErr(msg){ const e = $('#ferr'); if(e){ e.textContent = msg; e.scrollIntoView({block:'center'}); } else toast(msg, true); }
+function segHTML(id, opts, val){ return `<div class="seg" id="${id}" data-val="${esc(val)}">${opts.map(o => `<button type="button" data-act="seg" data-v="${esc(o)}" class="${o===val?'on':''}">${o === 'قيس' ? 'عند قيس' : esc(o)}</button>`).join('')}</div>`; }
+
+/* customer form */
+function customerForm(c){
+  const isNew = !c; c = c || {name:'', phone:'', price:35, opening:null, note:'', stopped:false};
+  const hasTx = !isNew && S.txns.some(t => t.cid === c.id);
+  const body = `<div class="err" id="ferr"></div>
+    <div class="field"><label>الاسم</label><input id="f_name" value="${esc(c.name)}" autocomplete="off"></div>
+    <div class="field"><label>رقم الهاتف (للواتساب)</label><input id="f_phone" type="tel" inputmode="tel" value="${esc(c.phone)}" placeholder="07xxxxxxxxx"></div>
+    <div class="field"><label>سعر الاشتراك الشهري (ألف)</label><input id="f_price" inputmode="decimal" value="${esc(c.price ?? 35)}"></div>
+    <div class="field"><label>الدين الافتتاحي (ألف)</label><input id="f_open" inputmode="decimal" value="${c.opening == null ? '' : esc(c.opening)}" placeholder="مثلاً 100 — إذا ما عليه شي اكتب 0">
+      <div class="hint">الدين اللي عليه قبل ما تبدي تسجل بالتطبيق. تكدر تغيره بعدين وينحفظ التغيير بالسجل.</div></div>
+    <div class="field"><label>ملاحظة</label><input id="f_note" value="${esc(c.note)}"></div>
+    ${isNew ? '' : `<label class="check"><input type="checkbox" id="f_stop" ${c.stopped ? 'checked' : ''}> متوقف (يختفي من القائمة الرئيسية)</label>`}
+    ${isNew ? '' : hasTx ? '' : `<button class="btn danger" style="margin-top:18px" data-act="delCustomer" data-id="${c.id}">حذف الزبون</button>`}`;
+  openModal(isNew ? 'زبون جديد' : 'تعديل الزبون', body, 'حفظ', () => {
+    const name = fv('f_name').trim().replace(/\s+/g, ' ');
+    const price = num(fv('f_price')), open = num(fv('f_open'));
+    if(!name) return showErr('اكتب الاسم');
+    if(S.customers.some(x => x.id !== c.id && norm(x.name) === norm(name))) return showErr('هذا الاسم موجود. اكتب اسم مميز (مثلاً أضف اسم الأب).');
+    if(price === null || Number.isNaN(price) || price < 0) return showErr('سعر الاشتراك غلط');
+    if(Number.isNaN(open)) return showErr('الدين الافتتاحي غلط');
+    const phone = fv('f_phone').trim(), note = fv('f_note').trim();
+    if(isNew){
+      const nc = {id:uid(), name, phone, price, opening:open, openingDate: open == null ? null : today(), note, stopped:false, createdAt:nowISO()};
+      closeModal();
+      commit({k:'cust', v:nc}, {type:'زبون جديد', cid:nc.id, text:`${name}${open != null ? ` — دين افتتاحي ${fn(open)}` : ''}`});
+      UI.view = {name:'customer', id:nc.id}; history.pushState({v:1}, ''); render(); toast('انضاف الزبون');
+    } else {
+      const ch = [];
+      if(c.name !== name) ch.push(`الاسم: ${c.name} ← ${name}`);
+      if((c.phone||'') !== phone) ch.push(`الهاتف: ${c.phone || '—'} ← ${phone || '—'}`);
+      if(c.price !== price) ch.push(`السعر: ${fn(c.price)} ← ${fn(price)}`);
+      if(c.opening !== open) ch.push(`الدين الافتتاحي: ${c.opening == null ? '—' : fn(c.opening)} ← ${open == null ? '—' : fn(open)}`);
+      if((c.note||'') !== note) ch.push('الملاحظة');
+      const stop = !!(document.getElementById('f_stop') || {}).checked;
+      if(!!c.stopped !== stop) ch.push(stop ? 'صار متوقف' : 'رجع فعّال');
+      closeModal();
+      if(ch.length){
+        const nc = {...c, name, phone, price, opening:open, note, stopped:stop};
+        if(c.opening !== open && open != null) nc.openingDate = today();
+        commit({k:'cust', v:nc}, {type:'تعديل زبون', cid:c.id, text:`${name}: ${ch.join('، ')}`});
+      }
+      toast('انحفظ');
+    }
+  });
+}
+
+/* transaction form */
+function txForm(kind, cid, t){
+  const c = cust(cid), s = stats().get(cid), isNew = !t;
+  t = t || {kind, date:today(), amount: kind === 'act' ? c.price : '', place:'قيس', by:'عز', note:''};
+  kind = t.kind;
+  const title = (isNew ? '' : 'تعديل ') + (kind === 'act' ? 'تفعيل' : kind === 'pay' ? 'تسديد' : 'دين آخر') + ' — ' + c.name;
+  let body = `<div class="err" id="ferr"></div>
+    <div class="field"><label>التاريخ</label><input id="f_date" type="date" value="${t.date}"></div>
+    <div class="field"><label>المبلغ (ألف)</label><input id="f_amt" inputmode="decimal" value="${esc(t.amount)}" placeholder="${kind === 'pay' && s.bal > 0 ? 'المطلوب ' + fn(s.bal) : ''}">`;
+  if(kind === 'pay'){
+    const q = [c.price, c.price * 2]; if(s.bal > 0 && !q.includes(s.bal)) q.push(s.bal);
+    body += `<div class="quick">${q.map(v => `<button type="button" data-act="quickAmt" data-v="${v}">${fn(v)}${v === s.bal ? ' (الكل)' : ''}</button>`).join('')}</div>`;
+  }
+  body += `</div>`;
+  if(kind === 'act') body += `<div class="field hint" id="f_endhint">ينتهي الاشتراك بتاريخ ${fd(addDays(t.date, SUB_DAYS))}</div>`;
+  if(kind === 'pay') body += `<div class="field"><label>مكان التسديد</label>${segHTML('f_place', ['قيس','مباشر'], t.place || 'قيس')}</div>
+      <div class="field"><label>استلم من قبل</label><input id="f_by" value="${esc(t.by || 'عز')}"></div>`;
+  body += `<div class="field"><label>${kind === 'debt' ? 'السبب / ملاحظة' : 'ملاحظة'}</label><input id="f_note" value="${esc(t.note)}"></div>`;
+  if(!isNew) body += `<button class="btn danger" style="margin-top:10px" data-act="delTx" data-id="${t.id}">حذف هذي الحركة</button>`;
+  openModal(title, body, 'حفظ', () => {
+    const date = fv('f_date'), amt = num(fv('f_amt'));
+    if(!date) return showErr('اختار التاريخ');
+    if(amt === null || Number.isNaN(amt) || amt <= 0) return showErr('اكتب مبلغ صحيح');
+    const place = kind === 'pay' ? ($('#f_place').dataset.val || 'قيس') : undefined;
+    const by = kind === 'pay' ? (fv('f_by').trim() || 'عز') : undefined;
+    const note = fv('f_note').trim();
+    const desc = x => `${KIND[x.kind]} ${fn(x.amount)} بتاريخ ${fd(x.date)}${x.kind === 'pay' ? ` (${x.place === 'مباشر' ? 'مباشر' : 'عند قيس'}، استلم: ${x.by})` : ''}${x.note ? ' — ' + x.note : ''}`;
+    closeModal();
+    if(isNew){
+      const now = nowISO();
+      const nt = {id:uid(), cid, kind, date, amount:amt, note, createdAt:now, b:month(now)};
+      if(kind === 'pay'){ nt.place = place; nt.by = by; }
+      commit({k:'tx', v:nt}, {type:KIND[kind], cid, text:`${c.name}: ${desc(nt)}`});
+      const ns = stats().get(cid);
+      if(kind === 'act') waPrompt(c, msgFor('act', c, ns, {date}), 'انحفظ التفعيل ✓');
+      else toast(`انحفظ ✓ — ${balText(ns.bal).s}: ${fn(Math.abs(ns.bal))}`);
+    } else {
+      const nt = {...t, date, amount:amt, note, updatedAt:nowISO()};
+      if(!nt.b) nt.b = month(nt.createdAt || nt.date);
+      if(kind === 'pay'){ nt.place = place; nt.by = by; }
+      const before = desc(t), after = desc(nt);
+      if(before !== after) commit({k:'tx', v:nt}, {type:'تعديل حركة', cid, text:`${c.name}: ${before} ← ${after}`});
+      toast('انحفظ');
+    }
+  });
+}
+
+function waPrompt(c, text, title){
+  const body = `<div class="field"><label>نص الرسالة (تكدر تعدله)</label><textarea id="f_msg">${esc(text)}</textarea>
+    <div class="hint">${c.phone ? 'راح ينفتح واتساب على رقم ' + esc(c.phone) : 'ما مسجل رقم لهذا الزبون، راح تختار المحادثة من واتساب.'}</div></div>
+    <button class="btn green" data-act="sendWa" data-id="${c.id}">فتح واتساب</button>
+    <button class="btn ghost" style="margin-top:10px" data-act="closeModal">لا، شكراً</button>`;
+  openModal(title || 'رسالة واتساب', body);
+}
+
+/* ---------------- batch (notebook) ---------------- */
+function renderBatch(){
+  setTop('إدخال من الدفتر');
+  const B = UI.batch, items = S.draft.batch;
+  const total = items.reduce((a, x) => a + x.amount, 0);
+  let h = `<div class="stack"><div class="label">لنقل تسديدات دفتر قيس مرة وحدة: اختار التاريخ، وبعدين اسم ومبلغ، اسم ومبلغ… وبالأخير احفظ الكل.</div>
+    <div class="card"><div class="field"><label>تاريخ التسديدات</label><input id="b_date" type="date" value="${B.date}"></div>
+    <div class="field"><label>مكان التسديد</label>${segHTML('b_place', ['قيس','مباشر'], B.place)}</div>
+    <div class="field" style="margin-bottom:0"><label>استلم من قبل</label><input id="b_by" value="${esc(B.by)}"></div></div>
+    <div class="card"><div class="err" id="ferr"></div><div class="batch-grid">
+      <div><input class="search" id="b_name" placeholder="الاسم" autocomplete="off"><div id="b_sug"></div></div>
+      <input class="search" id="b_amt" inputmode="decimal" placeholder="المبلغ"></div>
+      <button class="btn" style="margin-top:10px" data-act="batchAdd">أضف للقائمة</button></div>`;
+  if(items.length){
+    h += `<h2 class="sec">بالقائمة: ${items.length} — المجموع ${fn(total)} ألف</h2><div class="list">` + items.map((x, i) => {
+      const c = cust(x.cid);
+      return `<div class="row"><div class="main"><div class="title">${esc(c ? c.name : '؟')}</div><div class="sub">${fd(x.date)} · ${x.place === 'مباشر' ? 'مباشر' : 'عند قيس'} · استلم: ${esc(x.by)}</div></div>
+        <div class="amt pay"><span class="num">${fn(x.amount)}</span></div><button class="icon-btn" data-act="batchDel" data-i="${i}" aria-label="شيل">${I.close}</button></div>`;
+    }).join('') + `</div><button class="btn green" data-act="batchSave">حفظ الكل (${items.length})</button>`;
+  }
+  h += '</div>';
+  $('#main').innerHTML = h;
+}
+let batchPick = null;
+function batchSuggest(){
+  const q = norm(fv('b_name')); const box = $('#b_sug'); batchPick = null;
+  if(!q){ box.innerHTML = ''; return; }
+  const m = S.customers.filter(c => norm(c.name).includes(q)).slice(0, 6);
+  const exact = S.customers.find(c => norm(c.name) === q); if(exact) batchPick = exact.id;
+  box.innerHTML = m.length ? `<div class="suggest">${m.map(c => `<button type="button" data-act="batchPick" data-id="${c.id}">${esc(c.name)}</button>`).join('')}</div>` : `<div class="hint warn" style="margin-top:6px">ماكو زبون بهذا الاسم</div>`;
+}
+
+/* ---------------- expenses ---------------- */
+function renderExpenses(){
+  setTop('المصاريف');
+  const ex = [...S.expenses].sort((a,b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (a.createdAt < b.createdAt ? 1 : -1));
+  const m = today().slice(0,7);
+  const monthT = ex.filter(e => e.date.slice(0,7) === m).reduce((a,e) => a + e.amount, 0), allT = ex.reduce((a,e) => a + e.amount, 0);
+  let h = `<div class="stack"><div class="label">مصاريف تنصرف من فلوس الاشتراكات (مولد، بانزين، تصليح…). ما تأثر على ديون الزبائن.</div>
+    <div class="summary"><div class="card"><div class="label">هذا الشهر</div><div class="big"><span class="num">${fn(monthT)}</span></div><div class="label">ألف دينار</div></div>
+    <div class="card"><div class="label">الكل</div><div class="big"><span class="num">${fn(allT)}</span></div><div class="label">ألف دينار</div></div></div>`;
+  h += ex.length ? `<div class="list">${ex.map(e => `<button class="row" data-act="editExp" data-id="${e.id}"><div class="main"><div class="title">${esc(e.reason || 'مصروف')}</div>
+      <div class="sub">${fd(e.date)}${e.by ? ' · صرفها: ' + esc(e.by) : ''}</div></div><div class="amt"><span class="num">${fn(e.amount)}</span></div></button>`).join('')}</div>`
+    : `<div class="card empty">ماكو مصاريف مسجلة</div>`;
+  h += '</div>';
+  $('#main').innerHTML = h + `<button class="fab" data-act="addExp">${I.plus}<span>مصروف</span></button>`;
+}
+function expForm(e){
+  const isNew = !e; e = e || {date:today(), amount:'', by:'', reason:''};
+  const body = `<div class="err" id="ferr"></div>
+    <div class="field"><label>التاريخ</label><input id="f_date" type="date" value="${e.date}"></div>
+    <div class="field"><label>المبلغ (ألف)</label><input id="f_amt" inputmode="decimal" value="${esc(e.amount)}"></div>
+    <div class="field"><label>منو صرف / استلم</label><input id="f_by" value="${esc(e.by)}" placeholder="مثلاً علي، قيس"></div>
+    <div class="field"><label>السبب</label><input id="f_reason" value="${esc(e.reason)}" placeholder="مثلاً مولد، بانزين، تصليح ماطور"></div>
+    ${isNew ? '' : `<button class="btn danger" data-act="delExp" data-id="${e.id}">حذف المصروف</button>`}`;
+  openModal(isNew ? 'مصروف جديد' : 'تعديل مصروف', body, 'حفظ', () => {
+    const date = fv('f_date'), amt = num(fv('f_amt')), by = fv('f_by').trim(), reason = fv('f_reason').trim();
+    if(!date) return showErr('اختار التاريخ');
+    if(amt === null || Number.isNaN(amt) || amt <= 0) return showErr('اكتب مبلغ صحيح');
+    const d = x => `${fn(x.amount)} بتاريخ ${fd(x.date)}${x.reason ? ' — ' + x.reason : ''}${x.by ? ' (صرفها: ' + x.by + ')' : ''}`;
+    closeModal();
+    if(isNew){ const now = nowISO(); const ne = {id:uid(), date, amount:amt, by, reason, createdAt:now, b:month(now)}; commit({k:'exp', v:ne}, {type:'مصروف', text:d(ne)}); }
+    else { const ne = {...e, date, amount:amt, by, reason, updatedAt:nowISO()}; if(!ne.b) ne.b = month(ne.createdAt || ne.date); if(d(e) !== d(ne)) commit({k:'exp', v:ne}, {type:'تعديل مصروف', text:`${d(e)} ← ${d(ne)}`}); }
+    toast('انحفظ');
+  });
+}
+
+/* ---------------- log ---------------- */
+function renderLog(){
+  setTop('سجل العمليات');
+  const q = norm(UI.logQ || '');
+  let L = [...S.log].reverse();
+  if(q) L = L.filter(l => norm(l.type + ' ' + l.text).includes(q));
+  const shown = L.slice(0, UI.logLimit);
+  let h = `<div class="stack"><div class="label">كل عملية تصير بالتطبيق تنسجل هنا: إضافة، تعديل، حذف، نسخ واستعادة.</div>
+    <input class="search" id="lq" type="search" placeholder="ابحث بالسجل…" value="${esc(UI.logQ || '')}" autocomplete="off">`;
+  h += shown.length ? `<div class="list">${shown.map(l => `<div class="row"><div class="main"><div class="log-time"><span class="num">${fts(l.ts)}</span></div>
+      <div><span class="tag ${/حذف/.test(l.type) ? 'debt' : /تسديد/.test(l.type) ? 'pay' : 'acc'}">${esc(l.type)}</span> ${esc(l.text)}</div></div></div>`).join('')}</div>`
+    : `<div class="card empty">السجل فارغ</div>`;
+  if(L.length > shown.length) h += `<button class="btn ghost sm more" data-act="logMore">عرض المزيد (${L.length - shown.length})</button>`;
+  $('#main').innerHTML = h + '</div>';
+}
+
+/* ---------------- account & backup ---------------- */
+function renderBackup(){
+  setTop('الحساب والنسخ');
+  const lb = S.meta.lastBackup;
+  let prev = null; try{ prev = localStorage.getItem('dafter_before_restore'); }catch{}
+  $('#main').innerHTML = `<div class="stack"><div class="card">
+      <div class="kv"><span>الحساب</span><b dir="ltr">${esc(UI.email)}</b></div>
+      <div class="kv"><span>المزامنة</span><b>${{off:'بدون نت — الحفظ على الجهاز لحد ما يرجع النت', pending:'يزامن…', ok:'متزامن ✓'}[syncState()]}</b></div>
+      <div class="kv"><span>آخر نسخة احتياطية</span><b>${lb ? `<span class="num">${fts(lb)}</span>` : 'ما صارت'}</b></div>
+      <div class="kv"><span>الزبائن</span><b class="num">${S.customers.length}</b></div>
+      <div class="kv"><span>الحركات</span><b class="num">${S.txns.length}</b></div>
+      <div class="kv"><span>المصاريف</span><b class="num">${S.expenses.length}</b></div></div>
+    <button class="btn" data-act="exportBackup">تصدير نسخة احتياطية</button>
+    <div class="label">يطلعلك خيار المشاركة: احفظها بـ"الملفات" أو دزها لنفسك بتيليغرام. سويها كل أسبوعين تقريباً.</div>
+    <button class="btn ghost" data-act="pickRestore">استعادة من نسخة احتياطية</button>
+    <div class="label">تختار ملف النسخة، ويعرضلك شنو بيه قبل ما يستبدل البيانات الحالية بكل أجهزتك.</div>
+    <input type="file" id="restoreFile" hidden>
+    ${prev ? '<button class="btn ghost" data-act="undoRestore">رجّع البيانات اللي كانت قبل آخر استعادة</button>' : ''}
+    <div class="card"><div class="label" style="line-height:1.7">• البيانات محفوظة بحسابك بالسحابة وتتزامن بين أجهزتك.<br>
+      • تكدر تشتغل بدون نت، والتغييرات تتزامن وحدها من يرجع النت.<br>
+      • محد يكدر يشوف البيانات غير اللي يسجل دخول بحسابك.</div></div>
+    <button class="btn danger" data-act="logout">تسجيل خروج</button>
+    <div class="label" style="text-align:center">الدفتر — الإصدار ${APP_VERSION}</div></div>`;
+}
+function backupName(){ const d = new Date(); return `dafter-backup-${today()}-${pad(d.getHours())}${pad(d.getMinutes())}.json`; }
+async function exportBackup(){
+  const strip = a => a.map(x => { const y = {...x}; delete y.b; return y; });
+  const data = JSON.stringify({app:'dafter', version:2, customers:S.customers, txns:strip(S.txns), expenses:strip(S.expenses), log:S.log,
+    draft:S.draft, meta:{...S.meta}, exportedAt:nowISO()}, null, 1);
+  const name = backupName();
+  let done = false;
+  for(const type of ['application/json', 'text/plain']){
+    const file = new File([data], name, {type});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:'نسخة احتياطية — الدفتر'}); done = true; }
+      catch(e){ if(e && e.name === 'AbortError') return toast('انلغت'); continue; }
+      break;
+    }
+  }
+  if(!done){
+    const url = URL.createObjectURL(new Blob([data], {type:'application/json'}));
+    const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+  commit({k:'meta', v:{lastBackup:nowISO()}}, {type:'تصدير نسخة', text:`${name} — ${S.customers.length} زبون، ${S.txns.length} حركة`});
+  toast('انصدّرت النسخة ✓');
+}
+function validBackup(o){
+  return o && o.app === 'dafter' && Array.isArray(o.customers) && Array.isArray(o.txns) && Array.isArray(o.expenses) && Array.isArray(o.log)
+    && o.customers.every(c => c && c.id && typeof c.name === 'string')
+    && o.txns.every(t => t && t.id && t.cid && ['act','debt','pay'].includes(t.kind) && typeof t.amount === 'number' && /^\d{4}-\d\d-\d\d$/.test(t.date));
+}
+let pendingRestore = null;
+async function restoreFrom(file){
+  let o;
+  try{ o = JSON.parse(await file.text()); }catch{ return toast('الملف مو نسخة احتياطية صحيحة', true); }
+  if(!validBackup(o)) return toast('الملف مو نسخة احتياطية من الدفتر', true);
+  pendingRestore = o;
+  openModal('استعادة نسخة', `<div class="card"><div class="kv"><span>تاريخ النسخة</span><b class="num">${o.exportedAt ? fts(o.exportedAt) : '—'}</b></div>
+      <div class="kv"><span>الزبائن</span><b class="num">${o.customers.length}</b></div><div class="kv"><span>الحركات</span><b class="num">${o.txns.length}</b></div>
+      <div class="kv"><span>المصاريف</span><b class="num">${o.expenses.length}</b></div></div>
+    <div class="banner warn" style="margin:14px 0">راح تنمسح البيانات الحالية (${S.customers.length} زبون، ${S.txns.length} حركة) من حسابك بكل الأجهزة، وتحل محلها هذي النسخة. البيانات الحالية تنحفظ على هذا الجهاز وتكدر ترجعها.</div>
+    <button class="btn" data-act="confirmRestore">استعادة</button>`);
+}
+function snapshotForUndo(){ return JSON.stringify({app:'dafter', version:2, customers:S.customers, txns:S.txns, expenses:S.expenses, log:S.log, draft:S.draft, meta:S.meta}); }
+function confirmRestore(){
+  const o = pendingRestore; if(!o) return;
+  try{ localStorage.setItem('dafter_before_restore', snapshotForUndo()); }catch(e){ console.warn(e); }
+  pendingRestore = null; closeModal(); UI.view = null; UI.tab = 'customers'; UI.legacy = null;
+  replaceAll(o, o.exportedAt || S.meta.lastBackup);
+  commit([], {type:'استعادة نسخة', text:`${o.customers.length} زبون، ${o.txns.length} حركة، ${o.expenses.length} مصروف${o.exportedAt ? ' — نسخة ' + fts(o.exportedAt) : ''}`});
+  toast('انستعادت النسخة ✓');
+}
+function undoRestore(){
+  let prev = null; try{ prev = localStorage.getItem('dafter_before_restore'); }catch{}
+  if(!prev) return;
+  const o = JSON.parse(prev), cur = snapshotForUndo();
+  replaceAll(o, o.meta && o.meta.lastBackup);
+  try{ localStorage.setItem('dafter_before_restore', cur); }catch{}
+  commit([], {type:'تراجع عن استعادة', text:'رجعت البيانات اللي كانت قبل آخر استعادة'});
+  toast('رجعت البيانات السابقة');
+}
+function migrateLegacy(){
+  const o = UI.legacy; if(!o) return;
+  UI.legacy = null;
+  replaceAll(o, o.meta && o.meta.lastBackup);
+  commit([], {type:'نقل من الجهاز', text:`نقل بيانات النسخة السابقة لحسابك: ${o.customers.length} زبون، ${(o.txns || []).length} حركة`});
+  toast('انتقلت البيانات لحسابك ✓');
+}
+
+/* ---------------- events ---------------- */
+document.addEventListener('click', async ev => {
+  const el = ev.target.closest('[data-act]'); if(!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+  try{
+    switch(a){
+      case 'login': {
+        const email = fv('l_email').trim(), pass = fv('l_pass');
+        if(!email || !pass) return showErr('اكتب الإيميل والرمز');
+        el.disabled = true; el.textContent = 'لحظة…';
+        try{ await signInWithEmailAndPassword(auth, email, pass); }
+        catch(e){ showErr(authErr(e)); el.disabled = false; el.textContent = 'دخول'; }
+        break; }
+      case 'resetPass': {
+        const email = fv('l_email').trim(); if(!email) return showErr('اكتب الإيميل أول، وبعدين اضغط "نسيت الرمز"');
+        try{ await sendPasswordResetEmail(auth, email); toast('إذا الإيميل مسجل، راح يوصلك رابط تغيير الرمز'); }catch(e){ showErr(authErr(e)); }
+        break; }
+      case 'logout': {
+        if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية'; return; }
+        await signOut(auth); break; }
+      case 'tab': UI.tab = el.dataset.k; UI.view = null; closeModal(); render(); scrollTo(0,0); break;
+      case 'filter': UI.filter = el.dataset.k; render(); break;
+      case 'openCustomer': UI.view = {name:'customer', id}; history.pushState({v:1}, ''); render(); scrollTo(0,0); break;
+      case 'back': if(history.state && history.state.v){ history.back(); } else { UI.view = null; render(); } break;
+      case 'addCustomer': customerForm(null); break;
+      case 'editCustomer': customerForm(cust(id)); break;
+      case 'delCustomer': {
+        if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية للحذف'; return; }
+        const c = cust(id); closeModal(); UI.view = null;
+        commit({k:'custDel', id}, {type:'حذف زبون', text:c.name}); toast('انحذف'); break; }
+      case 'txForm': txForm(el.dataset.kind, id); break;
+      case 'editTx': { const t = S.txns.find(x => x.id === id); if(t) txForm(t.kind, t.cid, t); break; }
+      case 'delTx': {
+        if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية للحذف'; return; }
+        const t = S.txns.find(x => x.id === id), c = cust(t.cid); closeModal();
+        commit({k:'txDel', v:t}, {type:'حذف حركة', cid:t.cid, text:`${c ? c.name : ''}: ${KIND[t.kind]} ${fn(t.amount)} بتاريخ ${fd(t.date)}${t.note ? ' — ' + t.note : ''}`}); toast('انحذفت الحركة'); break; }
+      case 'quickAmt': $('#f_amt').value = el.dataset.v; break;
+      case 'seg': { const seg = el.parentElement; seg.dataset.val = el.dataset.v; [...seg.children].forEach(b => b.classList.toggle('on', b === el)); if(seg.id === 'b_place') UI.batch.place = el.dataset.v; break; }
+      case 'closeModal': closeModal(); pendingRestore = null; break;
+      case 'modalSave': if(modalSave) await modalSave(); break;
+      case 'waCustomer': { const c = cust(id), s = stats().get(id); waPrompt(c, msgFor(s.st === 'soon' || s.st === 'expired' ? 'expiry' : 'general', c, s)); break; }
+      case 'waExpiry': { const c = cust(id), s = stats().get(id); waPrompt(c, msgFor('expiry', c, s)); break; }
+      case 'sendWa': openWhatsApp(cust(id), fv('f_msg')); closeModal(); break;
+      case 'batchPick': { const c = cust(id); $('#b_name').value = c.name; batchPick = c.id; $('#b_sug').innerHTML = ''; $('#b_amt').focus(); break; }
+      case 'batchAdd': {
+        const date = fv('b_date'), amt = num(fv('b_amt')), by = fv('b_by').trim() || 'عز';
+        if(!batchPick){ const ex = S.customers.find(c => norm(c.name) === norm(fv('b_name'))); if(ex) batchPick = ex.id; }
+        if(!date) return showErr('اختار التاريخ');
+        if(!batchPick) return showErr('اختار الاسم من القائمة');
+        if(amt === null || Number.isNaN(amt) || amt <= 0) return showErr('اكتب مبلغ صحيح');
+        UI.batch.date = date; UI.batch.by = by;
+        const nb = [...S.draft.batch, {cid:batchPick, amount:amt, date, place:UI.batch.place, by}];
+        batchPick = null;
+        commit({k:'meta', v:{draftBatch:nb}});
+        $('#b_name').focus(); break; }
+      case 'batchDel': { const nb = S.draft.batch.filter((_, i) => i !== Number(el.dataset.i)); commit({k:'meta', v:{draftBatch:nb}}); break; }
+      case 'batchSave': {
+        const items = S.draft.batch; if(!items.length) return;
+        const ops = [], logs = [], now = nowISO();
+        for(const x of items){
+          const c = cust(x.cid); if(!c) continue;
+          ops.push({k:'tx', v:{id:uid(), cid:x.cid, kind:'pay', date:x.date, amount:x.amount, place:x.place, by:x.by, note:'', createdAt:now, b:month(now)}});
+          logs.push({type:'تسديد', cid:x.cid, text:`${c.name}: تسديد ${fn(x.amount)} بتاريخ ${fd(x.date)} (${x.place === 'مباشر' ? 'مباشر' : 'عند قيس'}، استلم: ${x.by}) — من الدفتر`});
+        }
+        ops.push({k:'meta', v:{draftBatch:[]}});
+        commit(ops, logs); toast(`انحفظت ${logs.length} تسديدات ✓`); break; }
+      case 'addExp': expForm(null); break;
+      case 'editExp': expForm(S.expenses.find(x => x.id === id)); break;
+      case 'delExp': {
+        if(el.dataset.sure !== '1'){ el.dataset.sure = '1'; el.textContent = 'متأكد؟ اضغط مرة ثانية للحذف'; return; }
+        const e = S.expenses.find(x => x.id === id); closeModal();
+        commit({k:'expDel', v:{...e, b: e.b || month(e.createdAt || e.date)}}, {type:'حذف مصروف', text:`${fn(e.amount)} بتاريخ ${fd(e.date)}${e.reason ? ' — ' + e.reason : ''}`}); toast('انحذف'); break; }
+      case 'logMore': UI.logLimit += 150; render(); break;
+      case 'exportBackup': await exportBackup(); break;
+      case 'pickRestore': { const f = $('#restoreFile'); f.value = ''; f.click(); break; }
+      case 'confirmRestore': confirmRestore(); break;
+      case 'undoRestore': undoRestore(); break;
+      case 'migrateLegacy': migrateLegacy(); break;
+    }
+  }catch(e){ console.error(e); toast('صار خطأ: ' + (e && e.message || e), true); }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if(t.id === 'q'){ UI.q = t.value; const l = $('#clist'); if(l) l.innerHTML = customerRows(stats()); }
+  else if(t.id === 'lq'){ UI.logQ = t.value; const pos = t.selectionStart; renderLog(); const n = $('#lq'); n.focus(); try{ n.setSelectionRange(pos, pos); }catch{} }
+  else if(t.id === 'b_name') batchSuggest();
+  else if(t.id === 'b_date') UI.batch.date = t.value;
+  else if(t.id === 'b_by') UI.batch.by = t.value;
+  else if(t.id === 'f_date' && $('#f_endhint')) $('#f_endhint').textContent = t.value ? 'ينتهي الاشتراك بتاريخ ' + fd(addDays(t.value, SUB_DAYS)) : '';
+});
+document.addEventListener('keydown', ev => { if(ev.key === 'Enter' && (ev.target.id === 'l_pass' || ev.target.id === 'l_email')){ const b = $('[data-act=login]'); if(b) b.click(); } });
+document.addEventListener('change', ev => { if(ev.target.id === 'restoreFile' && ev.target.files[0]) restoreFrom(ev.target.files[0]); });
+window.addEventListener('popstate', () => { if($('#layer').innerHTML){ closeModal(); return; } if(UI.view){ UI.view = null; render(); } });
+
+/* ---------------- boot ---------------- */
+window.__appStarted = true;
+if(!CFG || !CFG.apiKey || String(CFG.apiKey).includes('PASTE')){ showSetup(); }
+else {
+  const app = initializeApp(CFG);
+  auth = getAuth(app);
+  db = initializeFirestore(app, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()}), ignoreUndefinedProperties: true});
+  $('#main').innerHTML = '<div class="card empty" style="margin-top:40px">جاري التحميل…</div>';
+  onAuthStateChanged(auth, user => { if(user) startUser(user); else { stopUser(); legacyChecked = false; closeModal(); showLogin(); } });
+  if('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>
