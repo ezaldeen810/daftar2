@@ -1,6 +1,6 @@
 // الدفتر — service worker: يشغّل التطبيق حتى بدون نت، ويجيب آخر نسخة من الكود إذا النت موجود
 const CACHE = 'dafter-local-1';
-const CORE = ['./', './index.html', './manifest.json', './icon.png'];
+const CORE = ['./', './index.html', './manifest.json', './icon-offline.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
 });

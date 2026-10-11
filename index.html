@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="الدفتر">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon-offline.png">
+<link rel="icon" href="icon-offline.png">
 <title>الدفتر</title>
 <style>
 :root{
@@ -189,7 +189,7 @@ h2.sec button{border:0;background:var(--accent-soft);color:var(--accent);border-
 <div id="dlg"></div>
 <script>
 'use strict';
-const APP_VERSION = '1.3';
+const APP_VERSION = '1.4';
 const SUB_DAYS = 30;
 const MONTHS = ['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
 
@@ -264,6 +264,10 @@ function fixState(o){
   const s = {...e, ...o};
   s.draft = s.draft && Array.isArray(s.draft.batch) ? s.draft : {batch:[]};
   s.wallet = {...e.wallet, ...(o.wallet || {})}; if(!Array.isArray(s.wallet.topups)) s.wallet.topups = [];
+  if(s.wallet.opening != null){ // من الإصدار 1.3: الرصيد الافتتاحي يتحول لعملية شحن عادية
+    s.wallet.topups.push({id:uid(), date:s.wallet.openingDate || today(), amount:s.wallet.opening, note:'رصيد افتتاحي', createdAt:nowISO()});
+    s.wallet.opening = null; s.wallet.openingDate = null;
+  }
   s.settings = {...e.settings, ...(o.settings || {})};
   s.meta = {...e.meta, ...(o.meta || {})};
   return s;
@@ -308,14 +312,15 @@ function stateText(s){
 function balText(b){ return b > 0 ? {t:fn(b), c:'debt', s:'مطلوب'} : b < 0 ? {t:fn(-b), c:'pay', s:'رصيد مقدّم'} : {t:'0', c:'muted', s:'مسدّد'}; }
 function custTx(cid){ return S.txns.filter(t => t.cid === cid).sort(byDateDesc); }
 
-/* wallet: opening + top-ups − activation costs, all from the opening date on */
+/* wallet: all top-ups − activation costs, counted from the date of the first top-up */
 function walletInfo(){
-  const w = S.wallet;
-  if(w.opening == null || !w.openingDate) return null;
+  const tops = S.wallet.topups;
+  if(!tops.length) return null;
+  const date = tops.reduce((m, t) => t.date < m ? t.date : m, tops[0].date);
   let top = 0, cost = 0, nAct = 0;
-  for(const t of w.topups) if(t.date >= w.openingDate) top += t.amount;
-  for(const t of S.txns) if(t.kind === 'act' && t.date >= w.openingDate){ cost += actCost(t); nAct++; }
-  return {opening:w.opening, date:w.openingDate, top:r2(top), cost:r2(cost), nAct, bal:r2(w.opening + top - cost)};
+  for(const t of tops) top += t.amount;
+  for(const t of S.txns) if(t.kind === 'act' && t.date >= date){ cost += actCost(t); nAct++; }
+  return {date, top:r2(top), cost:r2(cost), nAct, bal:r2(top - cost)};
 }
 function monthReport(ym){
   const inM = d => d && d.slice(0,7) === ym;
@@ -668,12 +673,12 @@ function renderMoney(){
   if(w){
     h += `<div class="card wallet"><div class="label">رصيدي عند المزوّد</div>
       <div class="big ${w.bal < 0 ? 'debt' : 'accent'}"><span class="num">${fn(w.bal)}</span></div><div class="label">ألف دينار</div>
-      <div class="label" style="margin-top:8px">من ${fd(w.date)}: افتتاحي <span class="num">${fn(w.opening)}</span> + شحن <span class="num">${fn(w.top)}</span> − ${w.nAct} تفعيل <span class="num">${fn(w.cost)}</span></div>
-      <div class="btns"><button class="btn" data-act="addTopup">${'+ شحن رصيد'}</button><button class="btn ghost" data-act="openingForm">الرصيد الافتتاحي</button></div></div>`;
+      <div class="label" style="margin-top:8px">من ${fd(w.date)}: شحن <span class="num">${fn(w.top)}</span> − ${w.nAct} تفعيل <span class="num">${fn(w.cost)}</span></div>
+      <div class="btns" style="grid-template-columns:1fr"><button class="btn" data-act="addTopup">+ شحن رصيد</button></div></div>`;
   } else {
     h += `<div class="card wallet"><div class="label">رصيدي عند المزوّد</div><div class="big muted">—</div>
-      <div class="label" style="margin:6px 0 2px">حدد رصيدك الافتتاحي وتاريخه حتى يبدي الحساب.</div>
-      <div class="btns"><button class="btn" data-act="openingForm">الرصيد الافتتاحي</button><button class="btn ghost" data-act="addTopup">+ شحن رصيد</button></div></div>`;
+      <div class="label" style="margin:6px 0 2px">سجّل أول شحن بمبلغ رصيدك الحالي عند المزوّد، ومن تاريخه يبدي الحساب.</div>
+      <div class="btns" style="grid-template-columns:1fr"><button class="btn" data-act="addTopup">+ أول شحن</button></div></div>`;
   }
   h += `<div class="card monthbar"><button class="icon-btn" data-act="month" data-n="-1" aria-label="الشهر السابق">${I.back}</button>
       <div class="m">${monthName(ym)}</div><button class="icon-btn" data-act="month" data-n="1" aria-label="الشهر التالي">${I.fwd}</button></div>`;
@@ -701,21 +706,6 @@ function renderMoney(){
       <button class="btn ghost sm" data-act="costForm">تغيير</button></div>`;
   h += '</div>';
   $('#main').innerHTML = h;
-}
-function openingForm(){
-  const w = S.wallet;
-  const body = `<div class="err" id="ferr"></div>` + amountField('f_amt', 'رصيدي عند المزوّد', w.opening == null ? '' : w.opening) + `</div>
-    <div class="field"><label>بتاريخ</label><input id="f_date" type="date" value="${w.openingDate || today()}">
-    <div class="hint">التفعيلات والشحنات من هذا التاريخ وطالع تنحسب على الرصيد. اللي قبله محسوبة بالرقم الافتتاحي.</div></div>`;
-  openModal('الرصيد الافتتاحي', body, 'حفظ', async () => {
-    const amt = num(fv('f_amt')), date = fv('f_date');
-    if(amt === null || Number.isNaN(amt)) return showErr('اكتب الرصيد (يكدر يكون 0)');
-    if(!date) return showErr('اختار التاريخ');
-    const before = w.opening == null ? '—' : `${fn(w.opening)} بتاريخ ${fd(w.openingDate)}`;
-    w.opening = amt; w.openingDate = date; closeModal();
-    await commit({type:'رصيد افتتاحي', text:`${before} ← ${fn(amt)} بتاريخ ${fd(date)}`});
-    toast('انحفظ');
-  });
 }
 function topupForm(t){
   const isNew = !t; t = t || {date:today(), amount:'', note:''};
@@ -930,7 +920,6 @@ document.addEventListener('click', async ev => {
         const n = items.length; S.draft.batch = [];
         await commit(logs); toast(`انحفظت ${n} تسديدات ✓`); break; }
       case 'month': UI.month = shiftMonth(UI.month, Number(el.dataset.n)); render(); break;
-      case 'openingForm': openingForm(); break;
       case 'addTopup': topupForm(null); break;
       case 'editTopup': topupForm(S.wallet.topups.find(x => x.id === id)); break;
       case 'delTopup': {
